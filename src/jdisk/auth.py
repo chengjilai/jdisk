@@ -237,7 +237,7 @@ class SJTUAuth:
             ascii_qr = self._generate_terminal_qr(qr_url)
             print(ascii_qr)
 
-            print("📝 Scan with SJTU app or visit URL above to login")
+            print("📝 Scan with My SJTU application")
 
             # Step 5: Wait for QR code scan and authentication
             try:
