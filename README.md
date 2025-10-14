@@ -3,89 +3,88 @@
 A CLI tool for SJTU Netdisk
 
 
-✅ **QR Code Authentication** - Simple and reliable authentication method
-
-✅ **Complete File Operations** - Upload, download, list, navigate directories
-
-✅ **Smart Session Management** - Persistent authentication with auto-renewal
+**Features:**
+- QR Code Authentication - Simple and reliable authentication method
+- Complete File Operations - Upload, download, list, navigate directories
+- Smart Session Management - Persistent authentication with auto-renewal
 
 ---
 
-## 🚀 **Quick Start**
+## Quick Start
 
 ### Installation
 
-#### **Install from PyPI**
+#### Install from PyPI
 ```bash
-# Install via pip
 pip install jdisk
-
-jdisk --help
 ```
 or
 ```bash
-# Install via uv
 uv tool install jdisk
-
-jdisk --help
 ```
 
-#### **Install from Source**
+#### Install from Source
 ```bash
-# Clone the repository
 git clone https://github.com/chengjilai/jdisk.git
 cd jdisk
 
 # Install dependencies using pixi
 pixi install
 
-# Run the CLI tool directly
-pixi run python jdisk.py --help
-
-# Or create a symbolic link for system-wide access
-chmod +x jdisk.py
-ln -sf "$(pwd)/jdisk.py" ~/.local/bin/jdisk
+# Make the jdisk script executable
+chmod +x jdisk
 
 # Verify installation
-jdisk --help
+./jdisk --help
 ```
 
 ### First Time Authentication
 
-#### **QR Code Authentication** 📱
 ```bash
 jdisk auth
 ```
+
 **Process:**
 1. QR code displayed in terminal
-2. Scan with My SJTU mobile
+2. Scan with SJTU mobile app
 
 ---
 
-## 📋 **Usage Examples**
+## Usage Examples
 
-### **Basic Operations**
+### Basic Operations
 
 ```bash
 # Authentication
 jdisk auth                    # QR code authentication
 
-# File Management
-jdisk list                    # List root directory
-jdisk list docs/              # List specific directory
-jdisk ls                      # Short form of list
-jdisk ls docs/                # List docs/ directory
+# Directory Listing
+jdisk ls                      # List root directory
+jdisk ls docs/                # List specific directory
 
 # File Operations
 jdisk upload file.txt         # Upload to root directory
 jdisk upload file.txt docs/   # Upload to specific directory
 jdisk download file.txt       # Download from root directory
 jdisk download docs/file.txt  # Download from specific directory
+
+# Directory Management
+jdisk mkdir new_folder        # Create directory
+jdisk mkdir -p path/to/nested # Create nested directories
+jdisk rm file.txt             # Remove file
+jdisk rm -r docs/             # Remove directory recursively
+jdisk mv old.txt new.txt      # Rename file
+jdisk mv file.txt docs/       # Move file to directory
 ```
 
-### **Advanced Usage**
+### Advanced Usage
 
 ```bash
+# Interactive operations
+jdisk rm -i file.txt          # Remove with confirmation
+jdisk rm -f nonexistent.txt   # Force remove (ignore errors)
+jdisk rm -d empty_dir/        # Remove empty directory
+
 # File operations with paths
 jdisk upload ./local/file.txt /remote/path/
 jdisk download /remote/file.txt ./local/
@@ -95,33 +94,33 @@ jdisk ls /folder/subfolder/
 
 ---
 
-## 🌟 **Key Features**
+## Key Features
 
-### **Authentication**
-- 💾 **Session Persistence**: Save and reuse authentication
-- 🔄 **Auto-Refresh**: QR codes refresh to prevent expiration
+### Authentication
+- **Session Persistence**: Save and reuse authentication
+- **Auto-Refresh**: QR codes refresh to prevent expiration
 
-### **File Operations**
-- 📤 **Chunked Upload**: Efficient large file uploads with progress
-- 📥 **Direct Download**: Fast downloads via S3 presigned URLs
-- 📁 **Directory Navigation**: List and navigate directories
-- 🔒 **Secure Connections**: HTTPS/TLS for all communications
+### File Operations
+- **Chunked Upload**: Efficient large file uploads with progress
+- **Direct Download**: Fast downloads via S3 presigned URLs
+- **Directory Navigation**: List and navigate directories
+- **Secure Connections**: HTTPS/TLS for all communications
 
-### **User Experience**
-- 🎨 **Terminal-Friendly**: Optimized for command-line usage
-- 📱 **Mobile Support**: QR code scanning with mobile apps
+### User Experience
+- **Terminal-Friendly**: Optimized for command-line usage
+- **Mobile Support**: QR code scanning with mobile apps
 
 
 ---
 
-## 🔧 **Authentication Method**
+## Authentication Method
 
-### **QR Code Authentication** 📱
+### QR Code Authentication
 
 **Features:**
-- ✅ **Auto-refresh prevents expiration**
-- ✅ **Server-provided security signatures**
-- ✅ **Real-time WebSocket communication**
+- Auto-refresh prevents expiration
+- Server-provided security signatures
+- Real-time WebSocket communication
 
 **How it works:**
 1. Generate unique QR code with server signature
@@ -132,15 +131,15 @@ jdisk ls /folder/subfolder/
 
 **User Experience:**
 
-📱 QR Code Authentication for SJTU Netdisk
-📲 QR Code Generated:
+QR Code Authentication for SJTU Netdisk
+QR Code Generated:
 [... QR code displayed in terminal ...]
 
 
 
 ---
 
-## 📁 **Project Structure**
+## Project Structure
 
 ```
 jdisk/
@@ -167,7 +166,7 @@ jdisk/
 ---
 
 
-## 🛠️ **Dependencies**
+## Dependencies
 
 ```toml
 [dependencies]
@@ -178,7 +177,7 @@ websocket-client
 
 ---
 
-## 🏗️ **Technical Architecture**
+## Technical Architecture
 
 ### **QR Code Authentication Flow**
 
@@ -254,7 +253,7 @@ Three-step chunked upload similar to AWS S3:
 
 ---
 
-## 🛠️ **API Reference**
+## API Reference
 
 ### **Base Configuration**
 ```
@@ -539,24 +538,24 @@ GET /api/v1/directory/{library_id}/{space_id}/{path}?access_token={access_token}
 
 ---
 
-## 📈 **Development History**
+## Development History
 
-### **Latest Updates**
-- ✅ **QR Code Authentication**: Simple and reliable authentication method
-- ✅ **Server-Provided Signatures**: QR codes use proper cryptographic signatures
-- ✅ **Auto-Refresh Mechanism**: QR codes refresh every 50 seconds
-- ✅ **Enhanced WebSocket Handling**: Improved real-time communication
-- ✅ **Comprehensive Testing**: All features verified and working
+### Latest Updates
+- QR Code Authentication: Simple and reliable authentication method
+- Server-Provided Signatures: QR codes use proper cryptographic signatures
+- Auto-Refresh Mechanism: QR codes refresh every 50 seconds
+- Enhanced WebSocket Handling: Improved real-time communication
+- Comprehensive Testing: All features verified and working
 
 ---
 
-## 📄 **License**
+## License
 
 MIT License
 
 ---
 
-## 🤝 **Contributing**
+## Contributing
 
 Contributions welcome! Please ensure:
 - Code follows existing style

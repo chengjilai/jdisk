@@ -1,4 +1,4 @@
-"""Constants and configuration for SJTU Netdisk API"""
+"""Constants and configuration for SJTU Netdisk API."""
 
 # API URLs
 BASE_URL = "https://pan.sjtu.edu.cn"
@@ -12,6 +12,8 @@ DIRECTORY_INFO_URL = "/api/v1/directory/{library_id}/{space_id}/{path}"
 FILE_INFO_URL = "/api/v1/directory/{library_id}/{space_id}/{path}"
 FILE_UPLOAD_URL = "/api/v1/file/{library_id}/{space_id}/{path}"
 CREATE_DIRECTORY_URL = "/api/v1/directory/{library_id}/{space_id}/{path}"
+FILE_DELETE_URL = "/api/v1/file/{library_id}/{space_id}/{path}"
+FILE_MOVE_URL = "/api/v1/file/{library_id}/{space_id}/{path}"
 
 # Configuration
 CHUNK_SIZE = 4 * 1024 * 1024  # 4MB

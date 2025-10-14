@@ -31,17 +31,17 @@ def _qrcode_auth(auth):
         return session
 
     except AuthenticationError as e:
-        print(f"❌ Authentication failed: {e}")
+        print(f"Authentication failed: {e}")
         return None
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         return None
 
 
 def upload_file(local_path, remote_path=None):
     """Upload a file to SJTU Netdisk"""
     if not os.path.exists(local_path):
-        print(f"❌ File '{local_path}' does not exist")
+        print(f"File not found: {local_path}")
         return False
 
     if remote_path is None:
@@ -50,7 +50,7 @@ def upload_file(local_path, remote_path=None):
     try:
         auth = SJTUAuth()
         if not auth.load_session():
-            print("❌ No valid session. Please authenticate first.")
+            print("Authentication required. Run 'jdisk auth' first.")
             return False
 
         # Create session object from auth data
@@ -65,11 +65,10 @@ def upload_file(local_path, remote_path=None):
 
         uploader = FileUploader(auth)
         result = uploader.upload_file(local_path, remote_path)
-        print(f"✅ Uploaded: {result.file_id}")
         return True
 
     except (AuthenticationError, UploadError, SJTUNetdiskError) as e:
-        print(f"❌ Upload failed: {e}")
+        print(f"Upload failed: {e}")
         return False
 
 
@@ -81,19 +80,15 @@ def download_file(remote_path, local_path=None):
     try:
         auth = SJTUAuth()
         if not auth.load_session():
-            print("❌ No valid session. Please authenticate first.")
+            print("Authentication required. Run 'jdisk auth' first.")
             return False
 
         downloader = FileDownloader(auth)
         success = downloader.download_file(remote_path, local_path)
-        if success:
-            print(f"✅ Downloaded: {local_path}")
-            return True
-        print("❌ Download failed")
-        return False
+        return success
 
     except (AuthenticationError, DownloadError, SJTUNetdiskError) as e:
-        print(f"❌ Download failed: {e}")
+        print(f"Download failed: {e}")
         return False
 
 
@@ -102,7 +97,7 @@ def list_files(remote_path="/"):
     try:
         auth = SJTUAuth()
         if not auth.load_session():
-            print("❌ No valid session. Please authenticate first.")
+            print("Authentication required. Run 'jdisk auth' first.")
             return False
 
         client = SJTUNetdiskClient(auth)
@@ -111,22 +106,108 @@ def list_files(remote_path="/"):
         files = [item for item in result.contents if not item.is_dir]
         directories = [item for item in result.contents if item.is_dir]
 
+        # Directories first
+        if directories:
+            for dir_info in directories:
+                print(f"{dir_info.name}/")
+
+        # Then files
         if files:
             for file_info in files:
                 size_mb = file_info.size / (1024 * 1024)
-                print(f"  {file_info.name} ({size_mb:.2f} MB)")
-
-        if directories:
-            for dir_info in directories:
-                print(f"  {dir_info.name}/")
-
-        if not files and not directories:
-            print("  (empty)")
+                if size_mb >= 1.0:
+                    print(f"{file_info.name} ({size_mb:.1f}M)")
+                elif size_mb >= 0.001:
+                    size_kb = file_info.size / 1024
+                    print(f"{file_info.name} ({size_kb:.1f}K)")
+                else:
+                    print(f"{file_info.name}")
 
         return True
 
     except (AuthenticationError, SJTUNetdiskError) as e:
-        print(f"❌ List failed: {e}")
+        print(f"List failed: {e}")
+        return False
+
+
+def remove_file(remote_path, recursive=False, interactive=False, force=False, dir_only=False):
+    """Remove a file or directory from SJTU Netdisk"""
+    try:
+        auth = SJTUAuth()
+        if not auth.load_session():
+            print("Authentication required. Run 'jdisk auth' first.")
+            return False
+
+        client = SJTUNetdiskClient(auth)
+
+        # Check if path exists and get info
+        try:
+            file_info = client.get_file_info(remote_path)
+        except:
+            if not force:
+                print(f"Cannot remove '{remote_path}': No such file or directory")
+            return not force
+
+        # Handle interactive mode
+        if interactive and not force:
+            response = input(f"Remove {file_info.name}? (y/N) ")
+            if response.lower() not in ["y", "yes"]:
+                return True
+
+        # Handle directory removal
+        if file_info.is_dir:
+            if dir_only and not recursive:
+                # Only remove empty directory with -d flag
+                dir_info = client.list_directory(remote_path)
+                if dir_info.contents:
+                    if not force:
+                        print(f"Cannot remove '{remote_path}': Directory not empty")
+                    return not force
+
+            elif not recursive:
+                if not force:
+                    print(f"Cannot remove '{remote_path}': Is a directory")
+                return not force
+
+        # Perform deletion
+        success = client.delete_file(remote_path)
+        return success
+
+    except (AuthenticationError, SJTUNetdiskError) as e:
+        if not force:
+            print(f"Remove failed: {e}")
+        return False
+
+
+def move_file(from_path, to_path):
+    """Move/rename a file or directory in SJTU Netdisk"""
+    try:
+        auth = SJTUAuth()
+        if not auth.load_session():
+            print("Authentication required. Run 'jdisk auth' first.")
+            return False
+
+        client = SJTUNetdiskClient(auth)
+        return client.move_file(from_path, to_path)
+
+    except (AuthenticationError, SJTUNetdiskError) as e:
+        print(f"Move failed: {e}")
+        return False
+
+
+def make_directory(dir_path, create_parents=False):
+    """Create a directory in SJTU Netdisk"""
+    try:
+        auth = SJTUAuth()
+        if not auth.load_session():
+            print("Authentication required. Run 'jdisk auth' first.")
+            return False
+
+        client = SJTUNetdiskClient(auth)
+        return client.make_directory(dir_path, create_parents)
+
+    except (AuthenticationError, SJTUNetdiskError) as e:
+        print(f"Directory creation failed: {e}")
         return False
 
 
@@ -142,10 +223,17 @@ Examples:
   jdisk upload file.txt docs/   # Upload file.txt to docs/ directory
   jdisk download file.txt       # Download file.txt from root directory
   jdisk download docs/file.txt  # Download file.txt from docs/ directory
-  jdisk list                    # List root directory contents
-  jdisk list docs/              # List docs/ directory contents
-  jdisk ls                      # List root directory contents (short form)
-  jdisk ls docs/                # List docs/ directory contents (short form)
+  jdisk ls                      # List root directory contents
+  jdisk ls docs/                # List docs/ directory contents
+  jdisk mkdir new_folder        # Create new_folder directory
+  jdisk mkdir -p path/to/nested # Create nested directories with parents
+  jdisk rm file.txt             # Remove file.txt
+  jdisk rm -r docs/             # Remove docs/ directory recursively
+  jdisk rm -i file.txt          # Remove file.txt with confirmation
+  jdisk rm -f nonexistent.txt   # Force remove (ignore errors)
+  jdisk rm -d empty_dir/        # Remove empty directory
+  jdisk mv old.txt new.txt      # Rename old.txt to new.txt
+  jdisk mv file.txt docs/       # Move file.txt to docs/ directory
         """,
     )
 
@@ -164,13 +252,27 @@ Examples:
     download_parser.add_argument("remote_path", help="Remote file path to download")
     download_parser.add_argument("local_path", nargs="?", help="Local path to save (default: same as filename)")
 
-    # List command
-    list_parser = subparsers.add_parser("list", help="List directory contents")
-    list_parser.add_argument("remote_path", nargs="?", default="/", help="Remote directory path (default: /)")
-
-    # LS command (shorter version of list)
-    ls_parser = subparsers.add_parser("ls", help="List directory contents (short form)")
+    # List command (ls)
+    ls_parser = subparsers.add_parser("ls", help="List directory contents")
     ls_parser.add_argument("remote_path", nargs="?", default="/", help="Remote directory path (default: /)")
+
+    # Remove command (rm)
+    rm_parser = subparsers.add_parser("rm", help="Remove a file or directory")
+    rm_parser.add_argument("remote_path", help="Remote file or directory path to remove")
+    rm_parser.add_argument("-r", "--recursive", action="store_true", help="Remove directories and their contents recursively")
+    rm_parser.add_argument("-i", "--interactive", action="store_true", help="Prompt before every removal")
+    rm_parser.add_argument("-f", "--force", action="store_true", help="Ignore nonexistent files and arguments, never prompt")
+    rm_parser.add_argument("-d", "--dir", action="store_true", help="Remove empty directories")
+
+    # Move command (mv)
+    mv_parser = subparsers.add_parser("mv", help="Move/rename a file or directory")
+    mv_parser.add_argument("from_path", help="Source path")
+    mv_parser.add_argument("to_path", help="Destination path")
+
+    # Make directory command (mkdir)
+    mkdir_parser = subparsers.add_parser("mkdir", help="Create a directory")
+    mkdir_parser.add_argument("dir_path", help="Directory path to create")
+    mkdir_parser.add_argument("-p", "--parents", action="store_true", help="Create parent directories as needed")
 
     # Parse arguments
     args = parser.parse_args()
@@ -188,10 +290,20 @@ Examples:
         success = upload_file(args.local_path, args.remote_path)
     elif args.command == "download":
         success = download_file(args.remote_path, args.local_path)
-    elif args.command == "list":
-        success = list_files(args.remote_path)
     elif args.command == "ls":
         success = list_files(args.remote_path)
+    elif args.command == "rm":
+        success = remove_file(
+            args.remote_path,
+            recursive=args.recursive,
+            interactive=args.interactive,
+            force=args.force,
+            dir_only=args.dir,
+        )
+    elif args.command == "mv":
+        success = move_file(args.from_path, args.to_path)
+    elif args.command == "mkdir":
+        success = make_directory(args.dir_path, args.parents)
 
     return 0 if success else 1
 

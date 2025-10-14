@@ -183,7 +183,6 @@ class SJTUAuth:
 
         """
         print("📱 QR Code Authentication for SJTU Netdisk")
-        print("=" * 50)
 
         try:
             # Initialize QR code authentication
@@ -231,7 +230,6 @@ class SJTUAuth:
 
             # Step 4: Generate and display QR code with proper signature
             qr_url = self._generate_qrcode_url(uuid, sig, ts)
-            print("\n📲 QR Code:")
 
             # Generate QR code directly in terminal
             ascii_qr = self._generate_terminal_qr(qr_url)

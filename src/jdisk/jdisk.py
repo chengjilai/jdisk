@@ -1,8 +1,12 @@
 """SJTU Netdisk command line interface."""
 
+import os
 import sys
 
-from .cli import main as cli_main
+# Add the src directory to Python path to avoid relative import issues
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from jdisk.cli import main as cli_main
 
 
 def main():

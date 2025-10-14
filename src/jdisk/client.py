@@ -10,7 +10,9 @@ from .constants import (
     BASE_URL,
     CREATE_DIRECTORY_URL,
     DIRECTORY_INFO_URL,
+    FILE_DELETE_URL,
     FILE_INFO_URL,
+    FILE_MOVE_URL,
     STATUS_ERROR,
     STATUS_SUCCESS,
     USER_AGENT,
@@ -250,6 +252,84 @@ class SJTUNetdiskClient:
         except Exception as e:
             raise APIError(f"Failed to create directory: {e}")
 
+    def make_directory(self, dir_path: str, create_parents: bool = False) -> bool:
+        """Create a directory with optional parent creation
+
+        Args:
+            dir_path: Directory path to create (e.g., "/path/to/newdir")
+            create_parents: If True, create parent directories as needed
+
+        Returns:
+            bool: True if directory created successfully
+
+        Raises:
+            APIError: For API-related errors
+            NetworkError: For network-related errors
+
+        """
+        if not self.auth.is_authenticated():
+            raise APIError("Not authenticated")
+
+        try:
+            if create_parents:
+                # Create parent directories first
+                path_parts = dir_path.strip("/").split("/")
+                current_path = ""
+
+                for i, part in enumerate(path_parts):
+                    current_path += "/" + part
+
+                    # Check if directory already exists
+                    try:
+                        self.get_file_info(current_path)
+                        continue  # Directory exists, skip
+                    except:
+                        pass  # Directory doesn't exist, create it
+
+                    # Create this directory
+                    url = f"{BASE_URL}{CREATE_DIRECTORY_URL.format(library_id=self.auth.library_id, space_id=self.auth.space_id, path=current_path)}"
+
+                    params = {
+                        "conflict_resolution_strategy": "ask",
+                        "access_token": self.auth.access_token,
+                    }
+
+                    resp = self._make_request("PUT", url, params=params)
+
+                    # Try to check response, but handle case where directory might already exist
+                    try:
+                        data = self._check_response(resp)
+                        if data.get("status") != STATUS_SUCCESS:
+                            # If creation failed, it might be because the directory already exists
+                            # Check if it exists now
+                            try:
+                                self.get_file_info(current_path)
+                                continue  # Directory exists after all
+                            except:
+                                raise APIError(f"Failed to create parent directory: {current_path}")
+                    except APIError:
+                        # Check if directory exists despite API error
+                        try:
+                            self.get_file_info(current_path)
+                            continue  # Directory exists after all
+                        except:
+                            raise APIError(f"Failed to create parent directory: {current_path}")
+
+                return True
+            # Single directory creation (existing method)
+            # Check if directory already exists first
+            try:
+                self.get_file_info(dir_path)
+                return True  # Directory already exists
+            except:
+                pass  # Directory doesn't exist, create it
+            return self.create_directory(dir_path)
+
+        except (APIError, NetworkError):
+            raise
+        except Exception as e:
+            raise APIError(f"Failed to make directory: {e}")
+
     def batch_move(self, from_paths: List[str], to_path: str) -> bool:
         """Batch move/copy files and directories
 
@@ -306,3 +386,88 @@ class SJTUNetdiskClient:
             raise
         except Exception as e:
             raise APIError(f"Failed to batch move: {e}")
+
+    def delete_file(self, file_path: str) -> bool:
+        """Delete a file or directory
+
+        Args:
+            file_path: Path to the file or directory to delete
+
+        Returns:
+            bool: True if deletion successful
+
+        Raises:
+            APIError: For API-related errors
+            NetworkError: For network-related errors
+
+        """
+        if not self.auth.is_authenticated():
+            raise APIError("Not authenticated")
+
+        try:
+            url = f"{BASE_URL}{FILE_DELETE_URL.format(library_id=self.auth.library_id, space_id=self.auth.space_id, path=file_path)}"
+
+            params = {
+                "access_token": self.auth.access_token,
+            }
+
+            resp = self._make_request("DELETE", url, params=params)
+
+            # Check if deletion was successful (status 204 or 200)
+            if resp.status_code in [200, 204]:
+                return True
+            # Try to parse error response
+            try:
+                data = resp.json()
+                if data.get("status") == STATUS_ERROR:
+                    raise APIError(f"Delete failed: {data.get('message', 'Unknown error')}")
+            except (json.JSONDecodeError, ValueError):
+                pass
+            raise APIError(f"Delete failed with status {resp.status_code}")
+
+        except (APIError, NetworkError):
+            raise
+        except Exception as e:
+            raise APIError(f"Failed to delete file: {e}")
+
+    def move_file(self, from_path: str, to_path: str) -> bool:
+        """Move/rename a file or directory
+
+        Args:
+            from_path: Source path
+            to_path: Destination path
+
+        Returns:
+            bool: True if move successful
+
+        Raises:
+            APIError: For API-related errors
+            NetworkError: For network-related errors
+
+        """
+        if not self.auth.is_authenticated():
+            raise APIError("Not authenticated")
+
+        try:
+            url = f"{BASE_URL}{FILE_MOVE_URL.format(library_id=self.auth.library_id, space_id=self.auth.space_id, path=from_path)}"
+
+            params = {
+                "move": "",
+                "access_token": self.auth.access_token,
+            }
+
+            # Move data with destination path
+            move_data = {
+                "to": to_path,
+                "conflict_resolution_strategy": "rename",
+            }
+
+            resp = self._make_request("POST", url, params=params, json=move_data)
+            data = self._check_response(resp)
+
+            return data.get("status") == STATUS_SUCCESS
+
+        except (APIError, NetworkError):
+            raise
+        except Exception as e:
+            raise APIError(f"Failed to move file: {e}")
