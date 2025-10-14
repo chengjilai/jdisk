@@ -1,16 +1,16 @@
 """SJTU Netdisk command line interface."""
 
-import os
-import sys
+import warnings
 
-# Add the src directory to Python path to avoid relative import issues
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# Suppress the RuntimeWarning about module being found in sys.modules
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="runpy")
 
-from jdisk.cli import main as cli_main
+from .cli import main as cli_main
 
 
 def main():
     """Enter the CLI application."""
+    import sys
     sys.exit(cli_main())
 
 

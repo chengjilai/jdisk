@@ -240,15 +240,15 @@ Examples:
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
 
     # Auth command
-    auth_parser = subparsers.add_parser("auth", help="Authenticate with SJTU JAccount using QR code")
+    auth_parser = subparsers.add_parser("auth", help="Authenticate using QR code")
 
     # Upload command
-    upload_parser = subparsers.add_parser("upload", help="Upload a file")
+    upload_parser = subparsers.add_parser("upload", help="")
     upload_parser.add_argument("local_path", help="Local file path to upload")
     upload_parser.add_argument("remote_path", nargs="?", help="Remote path (default: same as filename)")
 
     # Download command
-    download_parser = subparsers.add_parser("download", help="Download a file")
+    download_parser = subparsers.add_parser("download", help="")
     download_parser.add_argument("remote_path", help="Remote file path to download")
     download_parser.add_argument("local_path", nargs="?", help="Local path to save (default: same as filename)")
 
@@ -278,8 +278,29 @@ Examples:
     args = parser.parse_args()
 
     if not args.command:
-        parser.print_help()
-        return 1
+        # Custom help output without the first three lines
+        help_text = parser.format_help()
+        lines = help_text.split("\n")
+        # Skip the first three lines (usage, description, and empty line)
+        filtered_lines = lines[3:]
+        # Replace "positional arguments:" with "command:"
+        for i, line in enumerate(filtered_lines):
+            if line.strip() == "positional arguments:":
+                filtered_lines[i] = "command:"
+        # Remove the next two lines after "command:" (the brace line and "Available commands" line)
+        new_filtered_lines = []
+        skip_next = 0
+        for line in filtered_lines:
+            if skip_next > 0:
+                skip_next -= 1
+                continue
+            if line.strip() == "command:":
+                new_filtered_lines.append(line)
+                skip_next = 2  # Skip the next 2 lines
+            else:
+                new_filtered_lines.append(line)
+        print("\n".join(new_filtered_lines))
+        return 0
 
     # Execute command
     success = False
