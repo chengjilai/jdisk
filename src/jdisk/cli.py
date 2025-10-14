@@ -216,25 +216,6 @@ def main():
     parser = argparse.ArgumentParser(
         description="A CLI tool for SJTU Netdisk",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  jdisk auth                    # QR code authentication
-  jdisk upload file.txt         # Upload file.txt to root directory
-  jdisk upload file.txt docs/   # Upload file.txt to docs/ directory
-  jdisk download file.txt       # Download file.txt from root directory
-  jdisk download docs/file.txt  # Download file.txt from docs/ directory
-  jdisk ls                      # List root directory contents
-  jdisk ls docs/                # List docs/ directory contents
-  jdisk mkdir new_folder        # Create new_folder directory
-  jdisk mkdir -p path/to/nested # Create nested directories with parents
-  jdisk rm file.txt             # Remove file.txt
-  jdisk rm -r docs/             # Remove docs/ directory recursively
-  jdisk rm -i file.txt          # Remove file.txt with confirmation
-  jdisk rm -f nonexistent.txt   # Force remove (ignore errors)
-  jdisk rm -d empty_dir/        # Remove empty directory
-  jdisk mv old.txt new.txt      # Rename old.txt to new.txt
-  jdisk mv file.txt docs/       # Move file.txt to docs/ directory
-        """,
     )
 
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
@@ -257,7 +238,19 @@ Examples:
     ls_parser.add_argument("remote_path", nargs="?", default="/", help="Remote directory path (default: /)")
 
     # Remove command (rm)
-    rm_parser = subparsers.add_parser("rm", help="Remove a file or directory")
+    rm_parser = subparsers.add_parser(
+        "rm",
+        help="Remove a file or directory",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  jdisk rm file.txt             # Remove file.txt
+  jdisk rm -r docs/             # Remove docs/ directory recursively
+  jdisk rm -i file.txt          # Remove file.txt with confirmation
+  jdisk rm -f nonexistent.txt   # Force remove (ignore errors)
+  jdisk rm -d empty_dir/        # Remove empty directory
+        """
+    )
     rm_parser.add_argument("remote_path", help="Remote file or directory path to remove")
     rm_parser.add_argument("-r", "--recursive", action="store_true", help="Remove directories and their contents recursively")
     rm_parser.add_argument("-i", "--interactive", action="store_true", help="Prompt before every removal")
@@ -265,12 +258,30 @@ Examples:
     rm_parser.add_argument("-d", "--dir", action="store_true", help="Remove empty directories")
 
     # Move command (mv)
-    mv_parser = subparsers.add_parser("mv", help="Move/rename a file or directory")
+    mv_parser = subparsers.add_parser(
+        "mv",
+        help="Move/rename a file or directory",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  jdisk mv old.txt new.txt      # Rename old.txt to new.txt
+  jdisk mv file.txt docs/       # Move file.txt to docs/ directory
+        """
+    )
     mv_parser.add_argument("from_path", help="Source path")
     mv_parser.add_argument("to_path", help="Destination path")
 
     # Make directory command (mkdir)
-    mkdir_parser = subparsers.add_parser("mkdir", help="Create a directory")
+    mkdir_parser = subparsers.add_parser(
+        "mkdir",
+        help="Create a directory",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  jdisk mkdir new_folder        # Create new_folder directory
+  jdisk mkdir -p path/to/nested # Create nested directories with parents
+        """
+    )
     mkdir_parser.add_argument("dir_path", help="Directory path to create")
     mkdir_parser.add_argument("-p", "--parents", action="store_true", help="Create parent directories as needed")
 
