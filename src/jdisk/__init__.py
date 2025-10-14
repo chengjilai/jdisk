@@ -3,7 +3,7 @@
 A simple Python implementation for Shanghai Jiao Tong University Netdisk client.
 """
 
-__version__ = "0.2.2"
+__version__ = "0.2.3"
 __author__ = "chengjilai"
 
 from .auth import SJTUAuth
