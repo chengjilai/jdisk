@@ -32,8 +32,8 @@ class SJTUAuth:
 
     def __init__(self, session_file: str = SESSION_FILE):
         # Expand tilde to user home directory
-        session_file = Path(session_file).expanduser()
-        self.session_file = session_file
+        session_file_path = Path(session_file).expanduser()
+        self.session_file = session_file_path
         # Ensure parent directory exists
         self.session_file.parent.mkdir(parents=True, exist_ok=True)
         self.session = requests.Session()
@@ -54,7 +54,7 @@ class SJTUAuth:
         self.username = None
 
     def _authenticate_with_extracted_cookie(self, ja_auth_cookie: str) -> Session:
-        """Authenticate using JAAuthCookie extracted from browser"""
+        """Authenticate using JAAuthCookie extracted from browser."""
         try:
             # Clean up the JAAuthCookie
             cleaned_cookie = ja_auth_cookie.replace("\n", "").replace("\r", "").strip()
@@ -631,7 +631,7 @@ class SJTUAuth:
             return False
 
     def is_authenticated(self) -> bool:
-        """Check if user is authenticated
+        """Check if user is authenticated.
 
         Returns:
             bool: True if authenticated, False otherwise
@@ -647,7 +647,7 @@ class SJTUAuth:
         )
 
     def get_session_data(self) -> Optional[Session]:
-        """Get current session data
+        """Get current session data.
 
         Returns:
             Optional[Session]: Current session data or None if not authenticated
@@ -666,7 +666,7 @@ class SJTUAuth:
         )
 
     def logout(self) -> bool:
-        """Logout and clear session
+        """Logout and clear session.
 
         Returns:
             bool: True if logout successful, False otherwise

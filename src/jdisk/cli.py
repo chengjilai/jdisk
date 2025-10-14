@@ -14,7 +14,7 @@ from .upload import FileUploader
 
 # CLI Functions
 def authenticate():
-    """Authenticate with SJTU JAccount using QR code
+    """Authenticate with SJTU JAccount using QR code.
 
     Returns:
         Session: Authenticated session object or None if failed
@@ -125,8 +125,8 @@ def list_files(remote_path="/"):
 
         return True
 
-    except (AuthenticationError, SJTUNetdiskError) as e:
-        print(f"List failed: {e}")
+    except (AuthenticationError, SJTUNetdiskError):
+        print("jdisk auth to authenticate first")
         return False
 
 
