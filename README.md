@@ -250,6 +250,32 @@ Three-step chunked upload similar to AWS S3:
 2. **Redirect**: Follow 302 redirect to S3 presigned URL
 3. **Download**: Direct download from AWS S3 with progress tracking
 
+### **Directory Creation Process**
+
+1. **Path Validation**: Check and validate directory path
+2. **Parent Creation**: With `-p` flag, create parent directories recursively
+3. **API Request**: Send PUT request to directory creation endpoint
+4. **Conflict Handling**: Handle existing directories gracefully
+5. **Confirmation**: Return directory information on success
+
+### **File Deletion Process**
+
+1. **Path Validation**: Verify file or directory exists
+2. **Permission Check**: Confirm user has deletion permissions
+3. **Interactive Prompt**: With `-i` flag, prompt for confirmation
+4. **Recursive Handling**: With `-r` flag, handle directory contents
+5. **API Request**: Send DELETE request to file deletion endpoint
+6. **Confirmation**: Return success status or error information
+
+### **File Move/Rename Process**
+
+1. **Source Validation**: Verify source file or directory exists
+2. **Destination Check**: Validate destination path and permissions
+3. **API Request**: Send POST request with move operation and destination
+4. **Conflict Resolution**: Handle naming conflicts automatically
+5. **Execution**: Perform atomic move operation on server
+6. **Confirmation**: Return updated file/directory information
+
 
 ---
 
@@ -484,7 +510,95 @@ GET /api/v1/directory/{library_id}/{space_id}/{path}?access_token={access_token}
 }
 ```
 
+### **Directory Creation API**
 
+#### **Create Directory**
+```
+PUT /api/v1/directory/{library_id}/{space_id}/{path}?conflict_resolution_strategy={strategy}&access_token={access_token}
+```
+
+**Parameters:**
+- `library_id`: User's library ID
+- `space_id`: User's space ID
+- `path`: Directory path to create (URL encoded)
+- `conflict_resolution_strategy`: "ask" (default), "rename", or "overwrite"
+- `access_token`: Valid access token
+
+**Headers:**
+- `Content-Type`: `application/json`
+- `Accept`: `application/json`
+
+**Response:**
+```json
+{
+  "status": 0,
+  "message": "success",
+  "path": ["new", "directory"],
+  "name": "directory",
+  "type": "dir",
+  "creationTime": "2025-01-15T10:30:00.000Z",
+  "modificationTime": "2025-01-15T10:30:00.000Z"
+}
+```
+
+### **File Deletion API**
+
+#### **Delete File or Directory**
+```
+DELETE /api/v1/file/{library_id}/{space_id}/{path}?access_token={access_token}
+```
+
+**Parameters:**
+- `library_id`: User's library ID
+- `space_id`: User's space ID
+- `path`: File or directory path to delete (URL encoded)
+- `access_token`: Valid access token
+
+**Response:**
+- **Success**: HTTP 204 No Content or HTTP 200 OK
+- **Error**: HTTP 404 Not Found, HTTP 403 Forbidden, HTTP 409 Conflict
+
+### **File Move/Rename API**
+
+#### **Move or Rename File**
+```
+POST /api/v1/file/{library_id}/{space_id}/{source_path}?move=&access_token={access_token}
+```
+
+**Parameters:**
+- `library_id`: User's library ID
+- `space_id`: User's space ID
+- `source_path`: Source file or directory path (URL encoded)
+- `move`: Fixed parameter (indicates move operation)
+- `access_token`: Valid access token
+
+**Request Body:**
+```json
+{
+  "to": "destination/path/file.txt",
+  "conflict_resolution_strategy": "rename"
+}
+```
+
+**Response:**
+```json
+{
+  "status": 0,
+  "message": "success",
+  "path": ["destination", "path", "file.txt"],
+  "name": "file.txt",
+  "type": "file",
+  "creationTime": "2025-01-15T10:30:00.000Z",
+  "modificationTime": "2025-01-15T10:35:00.000Z",
+  "contentType": "text/plain",
+  "size": "1024"
+}
+```
+
+**Move Operations:**
+- **Rename**: Set `to` to same directory with different filename
+- **Move**: Set `to` to different directory path
+- **Directory Move**: Supports moving entire directories and their contents
 
 ---
 
@@ -507,6 +621,24 @@ GET /api/v1/directory/{library_id}/{space_id}/{path}?access_token={access_token}
 - **Integrity Verification**: CRC64 and ETag provided for file verification
 - **Browser Compatible**: Uses standard HTTP redirects
 
+#### **Directory Creation Features**
+- **Parent Creation**: `-p` flag creates parent directories recursively
+- **Conflict Resolution**: Handles existing directories gracefully
+- **Path Validation**: Supports nested directory paths
+- **Immediate Effect**: Directories are available immediately after creation
+
+#### **File Deletion Features**
+- **Recursive Delete**: `-r` flag removes directories and all contents
+- **Interactive Mode**: `-i` flag prompts before each deletion
+- **Force Mode**: `-f` flag ignores nonexistent files and suppresses errors
+- **Directory-Only Delete**: `-d` flag removes only empty directories
+
+#### **File Move/Rename Features**
+- **Cross-Directory Moves**: Supports moving files between directories
+- **Directory Relocation**: Can move entire directories with contents
+- **Conflict Resolution**: Automatic renaming on conflicts
+- **Atomic Operations**: Move operations are completed atomically
+
 ---
 
 ## 🚨 **Troubleshooting**
@@ -525,6 +657,24 @@ GET /api/v1/directory/{library_id}/{space_id}/{path}?access_token={access_token}
 - **"Upload failed"**: Check file size and network connectivity
 - **"Download error"**: Verify file exists and permissions
 - **"Permission denied"**: Re-authenticate with valid session
+
+### **Directory Creation Issues**
+- **"Cannot create directory"**: Check parent directory permissions
+- **"Directory already exists"**: Use existing directory or specify different name
+- **"Invalid path"**: Ensure path follows valid naming conventions
+- **"Parent creation failed"**: Check available space and permissions
+
+### **File Deletion Issues**
+- **"Cannot remove file"**: Verify file exists and you have deletion permissions
+- **"Directory not empty"**: Use `-r` flag for recursive deletion
+- **"Is a directory"**: Use `-r` flag to remove directories or `-d` for empty directories
+- **"Permission denied"**: Re-authenticate or check file ownership
+
+### **File Move/Rename Issues**
+- **"Cannot move file"**: Verify source exists and destination is writable
+- **"File already exists"**: System automatically handles conflicts with renaming
+- **"Cross-device move error"**: This is not supported for cloud storage operations
+- **"Invalid destination"**: Ensure destination path is valid and accessible
 
 ### **Error Handling**
 - **Status Codes**: Standard HTTP status codes
