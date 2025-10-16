@@ -3,25 +3,23 @@
 A simple Python implementation for Shanghai Jiao Tong University Netdisk client.
 """
 
-__version__ = "0.3.0"
+__version__ = "0.2.3"
 __author__ = "chengjilai"
 
 # Core imports
+from .core.session import SessionManager
+from .core.operations import NetdiskOperations
+
 # API imports
 from .api.client import BaseAPIClient
 
-# CLI imports
-from .cli.main import main
-from .core.operations import NetdiskOperations
-from .core.session import SessionManager
-
-# Models imports
-from .models.data import DirectoryInfo, FileInfo, Session, UploadResult
-from .models.responses import APIResponse, AuthResponse, FileListResponse
-from .services.downloader import FileDownloader
-
 # Services imports
 from .services.uploader import FileUploader
+from .services.downloader import FileDownloader
+
+# Models imports
+from .models.data import FileInfo, DirectoryInfo, Session, UploadResult
+from .models.responses import APIResponse, AuthResponse, FileListResponse
 
 # Utils imports
 from .utils.errors import (
@@ -33,18 +31,25 @@ from .utils.errors import (
     ValidationError,
 )
 
+# CLI imports
+from .cli.main import main
+
 __all__ = [
     # Version info
     "__version__",
     "__author__",
+
     # Core components
     "SessionManager",
     "NetdiskOperations",
+
     # API components
     "BaseAPIClient",
+
     # Services
     "FileUploader",
     "FileDownloader",
+
     # Models
     "FileInfo",
     "DirectoryInfo",
@@ -53,6 +58,7 @@ __all__ = [
     "APIResponse",
     "AuthResponse",
     "FileListResponse",
+
     # Exceptions
     "SJTUNetdiskError",
     "AuthenticationError",
@@ -60,6 +66,7 @@ __all__ = [
     "DownloadError",
     "APIError",
     "ValidationError",
+
     # CLI
     "main",
 ]

@@ -10,12 +10,10 @@ TOKEN_EXCHANGE_URL = "/user/v1/sign-in/verify-account-login/xpw8ou8y"
 PERSONAL_SPACE_URL = "/user/v1/space/1/personal"
 DIRECTORY_INFO_URL = "/api/v1/directory/{library_id}/{space_id}/{path}"
 FILE_INFO_URL = "/api/v1/directory/{library_id}/{space_id}/{path}"
-FILE_DOWNLOAD_URL = "/api/v1/file/{library_id}/{space_id}/{path}"
 FILE_UPLOAD_URL = "/api/v1/file/{library_id}/{space_id}/{path}"
 CREATE_DIRECTORY_URL = "/api/v1/directory/{library_id}/{space_id}/{path}"
 FILE_DELETE_URL = "/api/v1/file/{library_id}/{space_id}/{path}"
 FILE_MOVE_URL = "/api/v1/file/{library_id}/{space_id}/{path}"
-BATCH_MOVE_URL = "/api/v1/batch/{library_id}/{space_id}"
 
 # Configuration
 CHUNK_SIZE = 4 * 1024 * 1024  # 4MB
