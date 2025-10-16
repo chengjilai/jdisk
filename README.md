@@ -24,18 +24,17 @@ uv tool install jdisk
 ```
 
 #### Install from Source
+
 ```bash
 git clone https://github.com/chengjilai/jdisk.git
 cd jdisk
-
 # Install dependencies using pixi
 pixi install
-
-# Make the jdisk script executable
-chmod +x jdisk
-
+# Create a symbolic link for system-wide access
+chmod +x jdisk.py
+ln -sf "$(pwd)/jdisk.py" ~/.local/bin/jdisk
 # Verify installation
-./jdisk --help
+jdisk
 ```
 
 ### First Time Authentication
@@ -52,7 +51,6 @@ jdisk auth
 
 ## Usage Examples
 
-### Basic Operations
 
 ```bash
 # Authentication
@@ -75,12 +73,6 @@ jdisk rm file.txt             # Remove file
 jdisk rm -r docs/             # Remove directory recursively
 jdisk mv old.txt new.txt      # Rename file
 jdisk mv file.txt docs/       # Move file to directory
-```
-
-### Advanced Usage
-
-```bash
-# Interactive operations
 jdisk rm -i file.txt          # Remove with confirmation
 jdisk rm -f nonexistent.txt   # Force remove (ignore errors)
 jdisk rm -d empty_dir/        # Remove empty directory
