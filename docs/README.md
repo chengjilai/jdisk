@@ -7,7 +7,6 @@ This directory contains comprehensive documentation for developers working with 
 - [**architecture.md**](architecture.md) - Project architecture and design patterns
 - [**api_reference.md**](api_reference.md) - Complete API reference and endpoints
 - [**implementation_details.md**](implementation_details.md) - Technical implementation details
-- [**development_guide.md**](development_guide.md) - Setup and development workflow
 - [**troubleshooting.md**](troubleshooting.md) - Advanced troubleshooting guide
 
 ## Quick Links
@@ -40,5 +39,3 @@ jdisk/
 ## Getting Started
 
 For user documentation, see the main [README.md](../README.md) in the project root.
-
-For development setup and contributions, see [development_guide.md](development_guide.md).
