@@ -13,12 +13,13 @@ def format_output(data: Any, format_type: str = "text") -> str:
 
     Returns:
         str: Formatted output
+
     """
     if format_type == "json":
         import json
+
         return json.dumps(data, indent=2, ensure_ascii=False)
-    else:
-        return str(data)
+    return str(data)
 
 
 def confirm_action(message: str, default: bool = False) -> bool:
@@ -30,6 +31,7 @@ def confirm_action(message: str, default: bool = False) -> bool:
 
     Returns:
         bool: True if user confirms
+
     """
     suffix = " [Y/n]" if default else " [y/N]"
     response = input(f"{message}{suffix}: ").strip().lower()
@@ -45,6 +47,7 @@ def print_success(message: str):
 
     Args:
         message: Success message
+
     """
     print(f"✅ {message}")
 
@@ -54,6 +57,7 @@ def print_error(message: str):
 
     Args:
         message: Error message
+
     """
     print(f"❌ {message}", file=sys.stderr)
 
@@ -63,6 +67,7 @@ def print_warning(message: str):
 
     Args:
         message: Warning message
+
     """
     print(f"⚠️  {message}")
 
@@ -72,6 +77,7 @@ def print_info(message: str):
 
     Args:
         message: Info message
+
     """
     print(f"ℹ️  {message}")
 
@@ -87,6 +93,7 @@ def progress_bar(current: int, total: int, width: int = 50, prefix: str = "Progr
 
     Returns:
         str: Progress bar string
+
     """
     if total == 0:
         percentage = 100
@@ -107,6 +114,7 @@ def paginate_list(items: List[str], page_size: int = 20) -> List[str]:
 
     Returns:
         List[str]: Selected items (for interactive mode)
+
     """
     if len(items) <= page_size:
         return items
@@ -125,7 +133,7 @@ def paginate_list(items: List[str], page_size: int = 20) -> List[str]:
 
         if current_page < total_pages - 1:
             action = input("\nPress Enter for next page, 'q' to quit: ").strip().lower()
-            if action == 'q':
+            if action == "q":
                 break
             current_page += 1
         else:
@@ -145,7 +153,8 @@ def truncate_text(text: str, max_length: int = 50, suffix: str = "...") -> str:
 
     Returns:
         str: Truncated text
+
     """
     if len(text) <= max_length:
         return text
-    return text[:max_length - len(suffix)] + suffix
+    return text[: max_length - len(suffix)] + suffix

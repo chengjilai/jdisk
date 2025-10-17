@@ -18,6 +18,7 @@ def validate_file_path(file_path: str) -> Path:
 
     Raises:
         ValidationError: If file path is invalid
+
     """
     if not file_path:
         raise ValidationError("File path cannot be empty")
@@ -47,6 +48,7 @@ def validate_remote_path(remote_path: str) -> str:
 
     Raises:
         ValidationError: If remote path is invalid
+
     """
     if not remote_path:
         raise ValidationError("Remote path cannot be empty")
@@ -83,6 +85,7 @@ def validate_session_data(session_data: Dict[str, Any]) -> bool:
 
     Raises:
         ValidationError: If session data is invalid
+
     """
     required_fields = ["ja_auth_cookie", "user_token", "library_id", "space_id", "access_token"]
 
@@ -109,6 +112,7 @@ def validate_directory_path(dir_path: str) -> str:
 
     Raises:
         ValidationError: If directory path is invalid
+
     """
     if not dir_path:
         raise ValidationError("Directory path cannot be empty")
@@ -136,6 +140,7 @@ def validate_chunk_size(chunk_size: int, file_size: int) -> int:
 
     Raises:
         ValidationError: If chunk size is invalid
+
     """
     from ..constants import CHUNK_SIZE, MAX_CHUNKS
 

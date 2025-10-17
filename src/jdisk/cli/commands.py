@@ -1,11 +1,10 @@
 """CLI command handlers for SJTU Netdisk."""
 
 import argparse
-import sys
 from typing import Optional
 
-from ..core.session import SessionManager
 from ..api.client import BaseAPIClient
+from ..core.session import SessionManager
 from ..utils.errors import SJTUNetdiskError
 
 
@@ -22,6 +21,7 @@ class CommandHandler:
 
         Returns:
             int: Exit code
+
         """
         parser = self._create_parser()
         args = parser.parse_args()
@@ -44,6 +44,7 @@ class CommandHandler:
 
         Returns:
             argparse.ArgumentParser: Configured parser
+
         """
         parser = argparse.ArgumentParser(
             description="A CLI tool for SJTU Netdisk",
@@ -98,6 +99,7 @@ class CommandHandler:
 
         Args:
             parser: Argument parser
+
         """
         help_text = parser.format_help()
         lines = help_text.split("\n")
@@ -117,30 +119,31 @@ class CommandHandler:
 
         Returns:
             int: Exit code
+
         """
         if args.command == "auth":
             return self._handle_auth()
-        elif args.command == "upload":
+        if args.command == "upload":
             return self._handle_upload(args.local_path, args.remote_path)
-        elif args.command == "download":
+        if args.command == "download":
             return self._handle_download(args.remote_path, args.local_path)
-        elif args.command == "ls":
+        if args.command == "ls":
             return self._handle_ls(args.remote_path, args)
-        elif args.command == "rm":
+        if args.command == "rm":
             return self._handle_rm(args.remote_path, args.recursive)
-        elif args.command == "mv":
+        if args.command == "mv":
             return self._handle_mv(args.from_path, args.to_path)
-        elif args.command == "mkdir":
+        if args.command == "mkdir":
             return self._handle_mkdir(args.dir_path, args.parents)
-        else:
-            print(f"Unknown command: {args.command}")
-            return 1
+        print(f"Unknown command: {args.command}")
+        return 1
 
     def _handle_auth(self) -> int:
         """Handle authentication command.
 
         Returns:
             int: Exit code
+
         """
         try:
             # Check if already authenticated
@@ -159,8 +162,7 @@ class CommandHandler:
                 # Save the session using the session manager
                 self.session_manager.save_session(session)
                 return 0
-            else:
-                return 1
+            return 1
 
         except KeyboardInterrupt:
             print("\nAuthentication cancelled by user")
@@ -178,10 +180,12 @@ class CommandHandler:
 
         Returns:
             int: Exit code
+
         """
         try:
             # Create auth service and load session
             from ..services.auth_service import AuthService
+
             auth_service = AuthService()
             if not auth_service.load_session():
                 print("Authentication required. Run 'jdisk auth' first.")
@@ -189,6 +193,7 @@ class CommandHandler:
 
             # Create uploader service
             from ..services.uploader import FileUploader
+
             uploader = FileUploader(auth_service)
 
             # Progress callback function
@@ -197,14 +202,15 @@ class CommandHandler:
                     percent = (uploaded / total) * 100
                     bar_length = 50
                     filled_length = int(bar_length * uploaded // total)
-                    bar = '█' * filled_length + '-' * (bar_length - filled_length)
-                    print(f'\rUploading: |{bar}| {percent:.1f}% ({uploaded}/{total} bytes)', end='')
+                    bar = "█" * filled_length + "-" * (bar_length - filled_length)
+                    print(f"\rUploading: |{bar}| {percent:.1f}% ({uploaded}/{total} bytes)", end="")
                 else:
-                    print(f'\rUploading: {uploaded} bytes', end='')
+                    print(f"\rUploading: {uploaded} bytes", end="")
 
             # Determine remote path
             if not remote_path:
                 import os
+
                 remote_path = f"/{os.path.basename(local_path)}"
 
             print(f"Uploading: {local_path} -> {remote_path}")
@@ -233,10 +239,12 @@ class CommandHandler:
 
         Returns:
             int: Exit code
+
         """
         try:
             # Create auth service and load session
             from ..services.auth_service import AuthService
+
             auth_service = AuthService()
             if not auth_service.load_session():
                 print("Authentication required. Run 'jdisk auth' first.")
@@ -244,6 +252,7 @@ class CommandHandler:
 
             # Create downloader service
             from ..services.downloader import FileDownloader
+
             downloader = FileDownloader(auth_service)
 
             # Progress callback function
@@ -252,10 +261,10 @@ class CommandHandler:
                     percent = (downloaded / total) * 100
                     bar_length = 50
                     filled_length = int(bar_length * downloaded // total)
-                    bar = '█' * filled_length + '-' * (bar_length - filled_length)
-                    print(f'\rDownloading: |{bar}| {percent:.1f}% ({downloaded}/{total} bytes)', end='')
+                    bar = "█" * filled_length + "-" * (bar_length - filled_length)
+                    print(f"\rDownloading: |{bar}| {percent:.1f}% ({downloaded}/{total} bytes)", end="")
                 else:
-                    print(f'\rDownloading: {downloaded} bytes', end='')
+                    print(f"\rDownloading: {downloaded} bytes", end="")
 
             print(f"Downloading: {remote_path} -> {local_path or 'local file'}")
 
@@ -279,6 +288,7 @@ class CommandHandler:
 
         Returns:
             int: Exit code
+
         """
         try:
             # Use the core operations to list files
@@ -297,8 +307,7 @@ class CommandHandler:
             # List directory recursively if requested
             if args.recursive:
                 return self._list_recursive(operations, remote_path, args)
-            else:
-                return self._list_directory(operations, remote_path, args)
+            return self._list_directory(operations, remote_path, args)
 
         except Exception as e:
             print(f"List failed: {e}")
@@ -315,8 +324,8 @@ class CommandHandler:
         # Apply filters
         if not args.all:
             # Filter out hidden files/directories (starting with .)
-            files = [f for f in files if not f.name.startswith('.')]
-            directories = [d for d in directories if not d.name.startswith('.')]
+            files = [f for f in files if not f.name.startswith(".")]
+            directories = [d for d in directories if not d.name.startswith(".")]
 
         # Apply sorting
         if args.time:
@@ -342,6 +351,7 @@ class CommandHandler:
 
     def _list_recursive(self, operations, remote_path: str, args) -> int:
         """List directories recursively."""
+
         def list_recursive_helper(path: str, prefix: str = ""):
             try:
                 dir_info = operations.list_files(path)
@@ -350,8 +360,8 @@ class CommandHandler:
 
                 # Apply filters
                 if not args.all:
-                    files = [f for f in files if not f.name.startswith('.')]
-                    directories = [d for d in directories if not d.name.startswith('.')]
+                    files = [f for f in files if not f.name.startswith(".")]
+                    directories = [d for d in directories if not d.name.startswith(".")]
 
                 # Sort
                 directories.sort(key=lambda x: x.name.lower())
@@ -402,11 +412,11 @@ class CommandHandler:
         all_items = directories + files
         for item in all_items:
             name_width = max(name_width, len(item.name))
-            if hasattr(item, 'size') and not item.is_dir:
+            if hasattr(item, "size") and not item.is_dir:
                 size_width = max(size_width, len(str(item.size)))
                 if args.human_readable:
                     size_width = max(size_width, len(item.size_human()))
-            if hasattr(item, 'modification_time') and item.modification_time:
+            if hasattr(item, "modification_time") and item.modification_time:
                 date_width = max(date_width, len(self._format_date(item.modification_time)))
 
         # Print directories
@@ -430,9 +440,10 @@ class CommandHandler:
         try:
             # Parse the ISO format date and format it like ls does
             from datetime import datetime
-            if 'T' in date_str:
+
+            if "T" in date_str:
                 # ISO format: 2025-01-15T10:30:00.000Z
-                dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+                dt = datetime.fromisoformat(date_str.replace("Z", "+00:00"))
                 # Format like Unix ls: Jan 15 10:30
                 return dt.strftime("%b %d %H:%M")
             return date_str
@@ -448,6 +459,7 @@ class CommandHandler:
 
         Returns:
             int: Exit code
+
         """
         try:
             # Use the core operations to delete files
@@ -467,9 +479,8 @@ class CommandHandler:
             if success:
                 print(f"Deleted: {remote_path}")
                 return 0
-            else:
-                print(f"Failed to delete: {remote_path}")
-                return 1
+            print(f"Failed to delete: {remote_path}")
+            return 1
 
         except Exception as e:
             print(f"Delete failed: {e}")
@@ -484,6 +495,7 @@ class CommandHandler:
 
         Returns:
             int: Exit code
+
         """
         try:
             # Use the core operations to move files
@@ -503,9 +515,8 @@ class CommandHandler:
             if success:
                 print(f"Moved: {from_path} -> {to_path}")
                 return 0
-            else:
-                print(f"Failed to move: {from_path} -> {to_path}")
-                return 1
+            print(f"Failed to move: {from_path} -> {to_path}")
+            return 1
 
         except Exception as e:
             print(f"Move failed: {e}")
@@ -520,6 +531,7 @@ class CommandHandler:
 
         Returns:
             int: Exit code
+
         """
         try:
             # Use the core operations to create directory
@@ -539,9 +551,8 @@ class CommandHandler:
             if success:
                 print(f"Directory created: {dir_path}")
                 return 0
-            else:
-                print(f"Failed to create directory: {dir_path}")
-                return 1
+            print(f"Failed to create directory: {dir_path}")
+            return 1
 
         except Exception as e:
             print(f"Make directory failed: {e}")

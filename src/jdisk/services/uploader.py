@@ -21,6 +21,7 @@ class FileUploader:
 
         Args:
             auth_service: Authentication service instance
+
         """
         self.auth = auth_service
         self.session = requests.Session()
@@ -65,6 +66,7 @@ class FileUploader:
 
         Raises:
             UploadError: If upload fails
+
         """
         if not self.auth.is_authenticated():
             raise UploadError("Not authenticated")
@@ -105,7 +107,7 @@ class FileUploader:
             params = {
                 "access_token": self.auth.access_token,
                 "multipart": "null",
-                "conflict_resolution_strategy": "overwrite" if overwrite else "rename"
+                "conflict_resolution_strategy": "overwrite" if overwrite else "rename",
             }
 
             # Request single chunk upload for simplicity
@@ -129,7 +131,7 @@ class FileUploader:
     def _upload_chunks(self, local_path: str, upload_info: dict, progress_callback: Optional[Callable[[int, int], None]] = None):
         """Step 2: Upload file chunks to S3"""
         try:
-            with open(local_path, 'rb') as f:
+            with open(local_path, "rb") as f:
                 file_data = f.read()
 
             total_size = len(file_data)
@@ -148,7 +150,7 @@ class FileUploader:
     def _upload_form_based(self, local_path: str, upload_info: dict, progress_callback: Optional[Callable[[int, int], None]] = None):
         """Upload using form-based approach (single chunk)"""
         try:
-            with open(local_path, 'rb') as f:
+            with open(local_path, "rb") as f:
                 file_data = f.read()
 
             # Get form data
@@ -193,7 +195,7 @@ class FileUploader:
     def _upload_multipart(self, local_path: str, upload_info: dict, progress_callback: Optional[Callable[[int, int], None]] = None):
         """Upload using multipart approach"""
         try:
-            with open(local_path, 'rb') as f:
+            with open(local_path, "rb") as f:
                 file_data = f.read()
 
             total_size = len(file_data)
@@ -216,7 +218,7 @@ class FileUploader:
                 upload_url = f"https://{domain}{path}"
                 params = {
                     "uploadId": upload_id,
-                    "partNumber": str(chunk_number)
+                    "partNumber": str(chunk_number),
                 }
 
                 # Get headers from part info
@@ -266,7 +268,7 @@ class FileUploader:
             params = {
                 "access_token": self.auth.access_token,
                 "confirm": "null",
-                "conflict_resolution_strategy": "rename"
+                "conflict_resolution_strategy": "rename",
             }
 
             resp = self._make_request("POST", url, params=params)

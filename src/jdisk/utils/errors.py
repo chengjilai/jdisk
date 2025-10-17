@@ -19,17 +19,14 @@ class SJTUNetdiskError(Exception):
 
 class AuthenticationError(SJTUNetdiskError):
     """Authentication related errors."""
-    pass
 
 
 class UploadError(SJTUNetdiskError):
     """Upload related errors."""
-    pass
 
 
 class DownloadError(SJTUNetdiskError):
     """Download related errors."""
-    pass
 
 
 class APIError(SJTUNetdiskError):
@@ -42,29 +39,23 @@ class APIError(SJTUNetdiskError):
 
 class NetworkError(SJTUNetdiskError):
     """Network related errors."""
-    pass
 
 
 class ValidationError(SJTUNetdiskError):
     """Validation related errors."""
-    pass
 
 
 class SessionExpiredError(AuthenticationError):
     """Session expired error."""
-    pass
 
 
 class FileNotFoundError(DownloadError):
     """File not found error."""
-    pass
 
 
 class InsufficientSpaceError(UploadError):
     """Insufficient storage space error."""
-    pass
 
 
 class RateLimitError(APIError):
     """Rate limit exceeded error."""
-    pass

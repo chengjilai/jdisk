@@ -3,7 +3,7 @@
 import hashlib
 import mimetypes
 import time
-from typing import Dict, Any
+from typing import Dict
 
 from ..constants import USER_AGENT
 
@@ -16,6 +16,7 @@ def format_file_size(size_bytes: int) -> str:
 
     Returns:
         str: Formatted size string
+
     """
     if size_bytes == 0:
         return "0B"
@@ -30,8 +31,7 @@ def format_file_size(size_bytes: int) -> str:
 
     if i == 0:
         return f"{int(size)}{size_names[i]}"
-    else:
-        return f"{size:.1f}{size_names[i]}"
+    return f"{size:.1f}{size_names[i]}"
 
 
 def calculate_file_hash(file_path: str, algorithm: str = "sha256", chunk_size: int = 8192) -> str:
@@ -47,9 +47,11 @@ def calculate_file_hash(file_path: str, algorithm: str = "sha256", chunk_size: i
 
     Raises:
         ValidationError: If file cannot be read
+
     """
-    from .errors import ValidationError
     from pathlib import Path
+
+    from .errors import ValidationError
 
     path = Path(file_path)
     if not path.exists() or not path.is_file():
@@ -75,6 +77,7 @@ def calculate_chunk_hashes(file_path: str, chunk_size: int) -> str:
 
     Returns:
         str: Comma-separated SHA256 hashes of chunks
+
     """
     from pathlib import Path
 
@@ -107,6 +110,7 @@ def get_mime_type(file_path: str) -> str:
 
     Returns:
         str: MIME type
+
     """
     mime_type, _ = mimetypes.guess_type(file_path)
     return mime_type or "application/octet-stream"
@@ -120,6 +124,7 @@ def setup_session_headers(additional_headers: Dict[str, str] = None) -> Dict[str
 
     Returns:
         Dict[str, str]: Headers dictionary
+
     """
     headers = {
         "User-Agent": USER_AGENT,
@@ -144,8 +149,9 @@ def exponential_backoff(attempt: int, base_delay: float = 1.0, max_delay: float 
 
     Returns:
         float: Delay in seconds
+
     """
-    delay = base_delay * (2 ** attempt)
+    delay = base_delay * (2**attempt)
     return min(delay, max_delay)
 
 
@@ -154,6 +160,7 @@ def get_current_timestamp_ms() -> int:
 
     Returns:
         int: Current timestamp in milliseconds
+
     """
     return int(time.time() * 1000)
 
@@ -166,14 +173,15 @@ def sanitize_filename(filename: str) -> str:
 
     Returns:
         str: Sanitized filename
+
     """
     # Remove or replace invalid characters
     invalid_chars = '<>:"/\\|?*'
     for char in invalid_chars:
-        filename = filename.replace(char, '_')
+        filename = filename.replace(char, "_")
 
     # Remove leading/trailing spaces and dots
-    filename = filename.strip(' .')
+    filename = filename.strip(" .")
 
     # Ensure filename is not empty
     if not filename:
@@ -193,6 +201,7 @@ def parse_file_size(size_str: str) -> int:
 
     Raises:
         ValidationError: If size string is invalid
+
     """
     from .errors import ValidationError
 
@@ -202,7 +211,8 @@ def parse_file_size(size_str: str) -> int:
 
     # Parse number and unit
     import re
-    match = re.match(r'^(\d+(?:\.\d+)?)\s*([A-Z]*)$', size_str)
+
+    match = re.match(r"^(\d+(?:\.\d+)?)\s*([A-Z]*)$", size_str)
     if not match:
         raise ValidationError(f"Invalid size format: {size_str}")
 
@@ -214,16 +224,16 @@ def parse_file_size(size_str: str) -> int:
 
     # Convert to bytes
     multipliers = {
-        '': 1,
-        'B': 1,
-        'K': 1024,
-        'KB': 1024,
-        'M': 1024 ** 2,
-        'MB': 1024 ** 2,
-        'G': 1024 ** 3,
-        'GB': 1024 ** 3,
-        'T': 1024 ** 4,
-        'TB': 1024 ** 4,
+        "": 1,
+        "B": 1,
+        "K": 1024,
+        "KB": 1024,
+        "M": 1024**2,
+        "MB": 1024**2,
+        "G": 1024**3,
+        "GB": 1024**3,
+        "T": 1024**4,
+        "TB": 1024**4,
     }
 
     multiplier = multipliers.get(unit)

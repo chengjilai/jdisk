@@ -1,7 +1,7 @@
 """Core data models for SJTU Netdisk API."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 
 @dataclass
@@ -27,7 +27,7 @@ class FileInfo:
     def size_human(self) -> str:
         """Get human-readable size string."""
         size = self.size
-        for unit in ['B', 'K', 'M', 'G']:
+        for unit in ["B", "K", "M", "G"]:
             if size < 1024:
                 return f"{size:.1f}{unit}"
             size /= 1024
@@ -81,13 +81,15 @@ class Session:
 
     def is_valid(self) -> bool:
         """Check if session is valid."""
-        return all([
-            self.ja_auth_cookie,
-            self.user_token,
-            self.library_id,
-            self.space_id,
-            self.access_token,
-        ])
+        return all(
+            [
+                self.ja_auth_cookie,
+                self.user_token,
+                self.library_id,
+                self.space_id,
+                self.access_token,
+            ]
+        )
 
     @property
     def user_id(self) -> str:

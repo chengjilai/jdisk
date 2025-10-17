@@ -5,7 +5,7 @@ dependencies = [
     "qrcode",
     "websocket-client",
 ]
-description = "SJTU Netdisk command line interface"
+description = "A CLI tool for SJTU Netdisk"
 name = "jdisk"
 readme = "README.md"
 requires-python = ">= 3.9"

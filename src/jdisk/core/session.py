@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Optional
 
 from ..constants import SESSION_FILE
-from ..models.data import Session, PersonalSpaceInfo
+from ..models.data import Session
 from ..utils.errors import AuthenticationError, ValidationError
 from ..utils.validators import validate_session_data
 
@@ -21,6 +21,7 @@ class SessionManager:
 
         Args:
             session_file: Path to session file
+
         """
         self.session_file_path = Path(session_file).expanduser()
         self._current_session: Optional[Session] = None
@@ -33,6 +34,7 @@ class SessionManager:
 
         Returns:
             bool: True if saved successfully
+
         """
         try:
             # Validate session before saving
@@ -69,6 +71,7 @@ class SessionManager:
 
         Returns:
             Optional[Session]: Loaded session or None if not found/invalid
+
         """
         if self._current_session:
             return self._current_session
@@ -105,6 +108,7 @@ class SessionManager:
 
         Returns:
             bool: True if cleared successfully
+
         """
         try:
             self._current_session = None
@@ -124,6 +128,7 @@ class SessionManager:
 
         Returns:
             bool: True if authenticated
+
         """
         session = self.get_current_session()
         return session is not None and session.is_valid()
@@ -133,6 +138,7 @@ class SessionManager:
 
         Returns:
             Optional[Session]: Current session or None
+
         """
         if not self._current_session:
             self._current_session = self.load_session()
@@ -146,6 +152,7 @@ class SessionManager:
 
         Returns:
             bool: True if updated successfully
+
         """
         session = self.get_current_session()
         if not session:
@@ -164,6 +171,7 @@ class SessionManager:
 
         Returns:
             dict: Authentication headers
+
         """
         session = self.get_current_session()
         if not session:
@@ -178,6 +186,7 @@ class SessionManager:
 
         Returns:
             dict: Authentication cookies
+
         """
         session = self.get_current_session()
         if not session:
@@ -192,6 +201,7 @@ class SessionManager:
 
         Returns:
             dict: Session information
+
         """
         session = self.get_current_session()
         if not session:
@@ -213,6 +223,7 @@ class SessionManager:
 
         Returns:
             bool: True if session is valid after refresh
+
         """
         try:
             # Try to use current session
@@ -239,6 +250,7 @@ class SessionManager:
 
         Returns:
             bool: True if session is valid
+
         """
         try:
             session = self.get_current_session()

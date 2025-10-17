@@ -1,9 +1,9 @@
-"""jdisk - Shanghai Jiao Tong University Netdisk client.
+"""jdisk, A CLI tool for SJTU Netdisk.
 
-A simple Python implementation for Shanghai Jiao Tong University Netdisk client.
+A simple Python implementation.
 """
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __author__ = "chengjilai"
 
 # Core imports

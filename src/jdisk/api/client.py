@@ -2,11 +2,11 @@
 
 import json
 import time
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict
 
 import requests
 
-from ..constants import DEFAULT_TIMEOUT, MAX_RETRIES, RETRY_BACKOFF_FACTOR, STATUS_ERROR, STATUS_SUCCESS
+from ..constants import DEFAULT_TIMEOUT, MAX_RETRIES, RETRY_BACKOFF_FACTOR, STATUS_SUCCESS
 from ..models.responses import APIResponse
 from ..utils.errors import APIError, NetworkError, RateLimitError, SessionExpiredError
 from ..utils.helpers import exponential_backoff, setup_session_headers
@@ -21,9 +21,10 @@ class BaseAPIClient:
         Args:
             base_url: Base URL for API requests
             timeout: Default timeout for requests
+
         """
-        from .endpoints import APIEndpoints
         from ..constants import BASE_URL
+        from .endpoints import APIEndpoints
 
         self.base_url = base_url or BASE_URL
         self.timeout = timeout
@@ -68,6 +69,7 @@ class BaseAPIClient:
             NetworkError: For network-related errors
             APIError: For API-related errors
             RateLimitError: For rate limit errors
+
         """
         last_error = None
         actual_timeout = timeout or self.timeout
@@ -88,12 +90,11 @@ class BaseAPIClient:
 
                 # Handle rate limiting
                 if response.status_code == 429:
-                    retry_after = int(response.headers.get('Retry-After', 60))
+                    retry_after = int(response.headers.get("Retry-After", 60))
                     if attempt < MAX_RETRIES - 1:
                         time.sleep(retry_after)
                         continue
-                    else:
-                        raise RateLimitError("Rate limit exceeded, please try again later", 429)
+                    raise RateLimitError("Rate limit exceeded, please try again later", 429)
 
                 # Handle session expiration
                 if response.status_code == 401:
@@ -103,10 +104,10 @@ class BaseAPIClient:
                 if response.status_code >= 400:
                     try:
                         error_data = response.json()
-                        message = error_data.get('message', f'HTTP {response.status_code}')
-                        error_code = error_data.get('error')
+                        message = error_data.get("message", f"HTTP {response.status_code}")
+                        error_code = error_data.get("error")
                     except (json.JSONDecodeError, ValueError):
-                        message = f'HTTP {response.status_code}: {response.text[:200]}'
+                        message = f"HTTP {response.status_code}: {response.text[:200]}"
                         error_code = None
 
                     raise APIError(message, response.status_code, error_code)
@@ -120,14 +121,12 @@ class BaseAPIClient:
                     delay = exponential_backoff(attempt, RETRY_BACKOFF_FACTOR)
                     time.sleep(delay)
                     continue
-                else:
-                    raise NetworkError(f"Network error after {MAX_RETRIES} attempts: {e}")
+                raise NetworkError(f"Network error after {MAX_RETRIES} attempts: {e}")
 
         # Should not reach here
         if last_error:
             raise NetworkError(f"Request failed: {last_error}")
-        else:
-            raise NetworkError("Unknown request error")
+        raise NetworkError("Unknown request error")
 
     def _parse_response(self, response: requests.Response) -> Dict[str, Any]:
         """Parse JSON response with error handling.
@@ -140,6 +139,7 @@ class BaseAPIClient:
 
         Raises:
             APIError: If response cannot be parsed
+
         """
         try:
             return response.json()
@@ -157,6 +157,7 @@ class BaseAPIClient:
 
         Raises:
             APIError: If API returned an error
+
         """
         api_response = APIResponse.from_dict(data)
 
@@ -182,6 +183,7 @@ class BaseAPIClient:
 
         Returns:
             Dict[str, Any]: Response data
+
         """
         response = self._make_request("GET", endpoint, params=params, headers=headers, timeout=timeout)
         return self._parse_response(response)
@@ -207,6 +209,7 @@ class BaseAPIClient:
 
         Returns:
             Dict[str, Any]: Response data
+
         """
         response = self._make_request(
             "POST",
@@ -240,6 +243,7 @@ class BaseAPIClient:
 
         Returns:
             Dict[str, Any]: Response data
+
         """
         response = self._make_request(
             "PUT",
@@ -269,6 +273,7 @@ class BaseAPIClient:
 
         Returns:
             Dict[str, Any]: Response data
+
         """
         response = self._make_request("DELETE", endpoint, params=params, headers=headers, timeout=timeout)
 
@@ -287,6 +292,7 @@ class BaseAPIClient:
 
         Returns:
             requests.Response: Streaming response
+
         """
         return self._make_request("GET", url, headers=headers, stream=True)
 
@@ -309,6 +315,7 @@ class BaseAPIClient:
 
         Returns:
             requests.Response: Upload response
+
         """
         return self._make_request(
             method,
@@ -326,6 +333,7 @@ class BaseAPIClient:
             name: Cookie name
             value: Cookie value
             domain: Cookie domain
+
         """
         self.session.cookies.set(name, value, domain=domain)
 
@@ -334,6 +342,7 @@ class BaseAPIClient:
 
         Args:
             token: Authorization token
+
         """
         self.session.headers["Authorization"] = f"Bearer {token}"
 

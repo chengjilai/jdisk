@@ -2,15 +2,15 @@
 
 from ..constants import (
     BASE_URL,
+    CREATE_DIRECTORY_URL,
+    DIRECTORY_INFO_URL,
+    FILE_DELETE_URL,
+    FILE_INFO_URL,
+    FILE_MOVE_URL,
+    FILE_UPLOAD_URL,
+    PERSONAL_SPACE_URL,
     SSO_LOGIN_URL,
     TOKEN_EXCHANGE_URL,
-    PERSONAL_SPACE_URL,
-    DIRECTORY_INFO_URL,
-    FILE_INFO_URL,
-    FILE_UPLOAD_URL,
-    CREATE_DIRECTORY_URL,
-    FILE_DELETE_URL,
-    FILE_MOVE_URL,
 )
 
 
@@ -18,7 +18,7 @@ class APIEndpoints:
     """Centralized API endpoint management."""
 
     def __init__(self, base_url: str = BASE_URL):
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
 
     # Authentication endpoints
     @property
@@ -39,17 +39,17 @@ class APIEndpoints:
     # File operations endpoints
     def directory_info(self, library_id: str, space_id: str, path: str) -> str:
         """Get directory info endpoint."""
-        clean_path = path.lstrip('/')
+        clean_path = path.lstrip("/")
         return f"{self.base_url}{DIRECTORY_INFO_URL.format(library_id=library_id, space_id=space_id, path=clean_path)}"
 
     def file_info(self, library_id: str, space_id: str, path: str) -> str:
         """Get file info endpoint."""
-        clean_path = path.lstrip('/')
+        clean_path = path.lstrip("/")
         return f"{self.base_url}{FILE_INFO_URL.format(library_id=library_id, space_id=space_id, path=clean_path)}"
 
     def file_upload(self, library_id: str, space_id: str, path: str) -> str:
         """File upload endpoint."""
-        clean_path = path.lstrip('/')
+        clean_path = path.lstrip("/")
         return f"{self.base_url}{FILE_UPLOAD_URL.format(library_id=library_id, space_id=space_id, path=clean_path)}"
 
     def create_directory(self, library_id: str, space_id: str, path: str) -> str:

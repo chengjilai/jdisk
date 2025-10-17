@@ -2,10 +2,10 @@
 
 import logging
 from pathlib import Path
-from typing import Callable, List, Optional
+from typing import Callable, Optional
 
 from ..models.data import DirectoryInfo, FileInfo, UploadResult
-from ..utils.errors import AuthenticationError, DownloadError, UploadError, ValidationError
+from ..utils.errors import AuthenticationError, DownloadError, UploadError
 from ..utils.validators import validate_file_path, validate_remote_path
 
 logger = logging.getLogger(__name__)
@@ -22,6 +22,7 @@ class NetdiskOperations:
             api_client: API client instance
             uploader: File uploader instance
             downloader: File downloader instance
+
         """
         self.session_manager = session_manager
         self.api_client = api_client
@@ -33,6 +34,7 @@ class NetdiskOperations:
 
         Raises:
             AuthenticationError: If not authenticated
+
         """
         if not self.session_manager.is_authenticated():
             raise AuthenticationError("Authentication required. Run 'jdisk auth' first.")
@@ -49,6 +51,7 @@ class NetdiskOperations:
         Raises:
             AuthenticationError: If not authenticated
             ValidationError: If path is invalid
+
         """
         self._ensure_authenticated()
 
@@ -57,11 +60,13 @@ class NetdiskOperations:
 
             # Create auth service instance for API calls
             from ..services.auth_service import AuthService
+
             auth_service = AuthService()
             auth_service.load_session()
 
             # Create file client for directory listing
             from ..services.file_client import FileClient
+
             client = FileClient(auth_service)
             return client.list_directory(remote_path)
 
@@ -91,6 +96,7 @@ class NetdiskOperations:
             AuthenticationError: If not authenticated
             ValidationError: If paths are invalid
             UploadError: If upload fails
+
         """
         self._ensure_authenticated()
 
@@ -142,6 +148,7 @@ class NetdiskOperations:
             AuthenticationError: If not authenticated
             ValidationError: If paths are invalid
             DownloadError: If download fails
+
         """
         self._ensure_authenticated()
 
@@ -182,6 +189,7 @@ class NetdiskOperations:
         Raises:
             AuthenticationError: If not authenticated
             ValidationError: If path is invalid
+
         """
         self._ensure_authenticated()
 
@@ -190,17 +198,20 @@ class NetdiskOperations:
 
             # Create auth service instance for API calls
             from ..services.auth_service import AuthService
+
             auth_service = AuthService()
             auth_service.load_session()
 
             # Create file client for file deletion
             from ..services.file_client import FileClient
+
             client = FileClient(auth_service)
 
             # Check if path exists and is directory
             file_info = client.get_file_info(remote_path)
             if file_info and file_info.is_dir and not recursive:
                 from ..utils.errors import ValidationError
+
                 raise ValidationError(f"Cannot delete directory {remote_path} without recursive flag")
 
             # Delete file/directory
@@ -226,6 +237,7 @@ class NetdiskOperations:
         Raises:
             AuthenticationError: If not authenticated
             ValidationError: If path is invalid
+
         """
         self._ensure_authenticated()
 
@@ -235,9 +247,11 @@ class NetdiskOperations:
 
             response_data = self.api_client.get(
                 self.api_client.endpoints.file_info(
-                    session.library_id, session.space_id, remote_path
+                    session.library_id,
+                    session.space_id,
+                    remote_path,
                 ),
-                params={"access_token": session.access_token, "info": ""}
+                params={"access_token": session.access_token, "info": ""},
             )
 
             # Parse file info from response
@@ -274,20 +288,24 @@ class NetdiskOperations:
         Raises:
             AuthenticationError: If not authenticated
             ValidationError: If path is invalid
+
         """
         self._ensure_authenticated()
 
         try:
             from ..utils.validators import validate_directory_path
+
             dir_path = validate_directory_path(dir_path)
 
             # Create auth service instance for API calls
             from ..services.auth_service import AuthService
+
             auth_service = AuthService()
             auth_service.load_session()
 
             # Create file client for directory creation
             from ..services.file_client import FileClient
+
             client = FileClient(auth_service)
 
             if create_parents:
@@ -344,6 +362,7 @@ class NetdiskOperations:
         Raises:
             AuthenticationError: If not authenticated
             ValidationError: If paths are invalid
+
         """
         self._ensure_authenticated()
 
@@ -353,11 +372,13 @@ class NetdiskOperations:
 
             # Create auth service instance for API calls
             from ..services.auth_service import AuthService
+
             auth_service = AuthService()
             auth_service.load_session()
 
             # Create file client for file moving
             from ..services.file_client import FileClient
+
             client = FileClient(auth_service)
 
             # Move file/directory

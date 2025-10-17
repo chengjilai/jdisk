@@ -1,8 +1,8 @@
 """Services layer for SJTU Netdisk operations."""
 
 from .auth_service import AuthService
-from .uploader import FileUploader
 from .downloader import FileDownloader
+from .uploader import FileUploader
 
 __all__ = [
     "AuthService",

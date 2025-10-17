@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
-from .data import FileInfo, DirectoryInfo, PersonalSpaceInfo
+from .data import FileInfo
 
 
 @dataclass

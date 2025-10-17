@@ -23,7 +23,7 @@ from ..constants import (
     TOKEN_EXCHANGE_URL,
     USER_AGENT,
 )
-from ..models.data import Session, PersonalSpaceInfo
+from ..models.data import PersonalSpaceInfo, Session
 from ..utils.errors import APIError, AuthenticationError, NetworkError
 
 
@@ -35,6 +35,7 @@ class AuthService:
 
         Args:
             session_file: Path to session file
+
         """
         # Expand tilde to user home directory
         session_file_path = Path(session_file).expanduser()
@@ -73,6 +74,7 @@ class AuthService:
 
         Raises:
             AuthenticationError: If authentication fails
+
         """
         print("📱 QR Code Authentication for SJTU Netdisk")
 
@@ -613,12 +615,14 @@ class AuthService:
             bool: True if authenticated, False otherwise
 
         """
-        return all([
-            self.user_token,
-            self.access_token,
-            self.library_id,
-            self.space_id,
-        ])
+        return all(
+            [
+                self.user_token,
+                self.access_token,
+                self.library_id,
+                self.space_id,
+            ]
+        )
 
     def get_session_data(self) -> Optional[Session]:
         """Get current session data.

@@ -1,8 +1,8 @@
 """Files API for SJTU Netdisk."""
 
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
-from ..models.data import FileInfo, DirectoryInfo
+from ..models.data import DirectoryInfo, FileInfo
 from ..utils.errors import APIError
 
 
@@ -14,6 +14,7 @@ class FilesAPI:
 
         Args:
             base_client: Base API client
+
         """
         self.client = base_client
 
@@ -31,6 +32,7 @@ class FilesAPI:
 
         Raises:
             APIError: If request fails
+
         """
         raise APIError("Directory listing API not yet fully implemented in refactored version")
 
@@ -47,6 +49,7 @@ class FilesAPI:
 
         Raises:
             APIError: If request fails
+
         """
         raise APIError("File info API not yet fully implemented in refactored version")
 
@@ -63,6 +66,7 @@ class FilesAPI:
 
         Raises:
             APIError: If request fails
+
         """
         raise APIError("Create directory API not yet fully implemented in refactored version")
 
@@ -79,6 +83,7 @@ class FilesAPI:
 
         Raises:
             APIError: If request fails
+
         """
         raise APIError("Delete file API not yet fully implemented in refactored version")
 
@@ -96,6 +101,7 @@ class FilesAPI:
 
         Raises:
             APIError: If request fails
+
         """
         raise APIError("Move file API not yet fully implemented in refactored version")
 
@@ -113,6 +119,7 @@ class FilesAPI:
 
         Raises:
             APIError: If request fails
+
         """
         raise APIError("Upload initiation API not yet fully implemented in refactored version")
 
@@ -129,5 +136,6 @@ class FilesAPI:
 
         Raises:
             APIError: If request fails
+
         """
         raise APIError("Upload confirmation API not yet fully implemented in refactored version")

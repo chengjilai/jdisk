@@ -1,7 +1,7 @@
 """API request models for SJTU Netdisk API."""
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 
 @dataclass
@@ -66,12 +66,14 @@ class BatchMoveRequest:
             item_type = "file" if not file_info.is_dir else ""
             to_full_path = f"{to_path.rstrip('/')}/{file_info.name}" if to_path != "/" else f"/{file_info.name}"
 
-            moves.append({
-                "from": from_path,
-                "to": to_full_path,
-                "type": item_type,
-                "conflict_resolution_strategy": "rename",
-                "move_authority": file_info.is_dir,
-            })
+            moves.append(
+                {
+                    "from": from_path,
+                    "to": to_full_path,
+                    "type": item_type,
+                    "conflict_resolution_strategy": "rename",
+                    "move_authority": file_info.is_dir,
+                }
+            )
 
         return cls(moves=moves)

@@ -1,8 +1,8 @@
-"""SJTU Netdisk command line interface."""
+"""jdisk."""
 
-import warnings
-import sys
 import os
+import sys
+import warnings
 
 # Suppress the RuntimeWarning about module being found in sys.modules
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="runpy")

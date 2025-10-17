@@ -1,7 +1,7 @@
 """Main CLI entry point for SJTU Netdisk."""
 
-import warnings
 import logging
+import warnings
 
 # Suppress the RuntimeWarning about module being found in sys.modules
 warnings.filterwarnings("ignore", category=RuntimeWarning, module="runpy")
@@ -13,8 +13,6 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Enter the CLI application."""
-    import sys
-
     try:
         from .commands import CommandHandler
 

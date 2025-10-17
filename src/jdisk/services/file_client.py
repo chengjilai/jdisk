@@ -12,7 +12,6 @@ from ..constants import (
     DIRECTORY_INFO_URL,
     FILE_DELETE_URL,
     FILE_INFO_URL,
-    FILE_MOVE_URL,
     STATUS_ERROR,
     STATUS_SUCCESS,
     USER_AGENT,
@@ -29,6 +28,7 @@ class FileClient:
 
         Args:
             auth_service: Authentication service instance
+
         """
         self.auth = auth_service
         self.session = requests.Session()
@@ -179,14 +179,13 @@ class FileClient:
             # Check for success or if directory already exists
             if data.get("status") == STATUS_SUCCESS:
                 return True
-            elif data.get("code") == "SameNameDirectoryOrFileExists":
+            if data.get("code") == "SameNameDirectoryOrFileExists":
                 # Directory already exists - this is okay
                 return True
-            elif "creationTime" in data:
+            if "creationTime" in data:
                 # Directory created successfully - API returns creationTime on success
                 return True
-            else:
-                return False
+            return False
 
         except (APIError, NetworkError):
             raise
@@ -255,13 +254,13 @@ class FileClient:
             batch_data = []
             for from_path in from_paths:
                 # Extract filename from path (remove leading /)
-                clean_from_path = from_path.lstrip('/')
-                filename = clean_from_path.split('/')[-1]
+                clean_from_path = from_path.lstrip("/")
+                filename = clean_from_path.split("/")[-1]
 
                 # Construct destination path:
                 # If to_path ends with '/', it's a directory - append filename
                 # If to_path doesn't end with '/', it's the full destination path
-                if to_path.endswith('/'):
+                if to_path.endswith("/"):
                     dest_path = to_path + filename
                 else:
                     dest_path = to_path
@@ -274,13 +273,15 @@ class FileClient:
                 is_dir = file_info.is_dir
                 file_type = "" if is_dir else "file"
 
-                batch_data.append({
-                    "from": clean_from_path,  # Use path without leading slash
-                    "to": dest_path.lstrip('/'),  # Remove leading slash from destination too
-                    "type": file_type,
-                    "conflict_resolution_strategy": "rename",
-                    "moveAuthority": is_dir,
-                })
+                batch_data.append(
+                    {
+                        "from": clean_from_path,  # Use path without leading slash
+                        "to": dest_path.lstrip("/"),  # Remove leading slash from destination too
+                        "type": file_type,
+                        "conflict_resolution_strategy": "rename",
+                        "moveAuthority": is_dir,
+                    }
+                )
 
             resp = self._make_request("POST", url, params=params, json=batch_data)
 
@@ -297,7 +298,6 @@ class FileClient:
             # Parse successful response
             data = resp.json()
 
-            
             # Check if all moves were successful
             results = data.get("result", [])
             if not results:

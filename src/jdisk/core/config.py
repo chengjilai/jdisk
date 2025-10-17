@@ -1,6 +1,5 @@
 """Configuration management for SJTU Netdisk."""
 
-import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
@@ -16,6 +15,7 @@ class Config:
 
         Args:
             config_file: Path to configuration file
+
         """
         self.config_dir = Path.home() / ".jdisk"
         self.config_file = Path(config_file) if config_file else self.config_dir / "config.json"
@@ -29,6 +29,7 @@ class Config:
         try:
             if self.config_file.exists():
                 import json
+
                 with open(self.config_file, "r", encoding="utf-8") as f:
                     self._config_data = json.load(f)
             else:
@@ -41,6 +42,7 @@ class Config:
 
         Returns:
             Dict[str, Any]: Default configuration
+
         """
         return {
             "api": {
@@ -75,12 +77,14 @@ class Config:
 
         Returns:
             bool: True if saved successfully
+
         """
         try:
             # Ensure config directory exists
             self.config_dir.mkdir(parents=True, exist_ok=True)
 
             import json
+
             with open(self.config_file, "w", encoding="utf-8") as f:
                 json.dump(self._config_data, f, indent=2, ensure_ascii=False)
 
@@ -98,6 +102,7 @@ class Config:
 
         Returns:
             Any: Configuration value
+
         """
         keys = key.split(".")
         value = self._config_data
@@ -118,6 +123,7 @@ class Config:
 
         Returns:
             bool: True if set successfully
+
         """
         keys = key.split(".")
         config = self._config_data
@@ -141,6 +147,7 @@ class Config:
 
         Returns:
             str: API base URL
+
         """
         return self.get("api.base_url", "https://pan.sjtu.edu.cn")
 
@@ -149,6 +156,7 @@ class Config:
 
         Returns:
             int: Timeout in seconds
+
         """
         return self.get("api.timeout", 30)
 
@@ -157,6 +165,7 @@ class Config:
 
         Returns:
             int: Maximum retry attempts
+
         """
         return self.get("api.max_retries", 3)
 
@@ -165,6 +174,7 @@ class Config:
 
         Returns:
             int: Chunk size in bytes
+
         """
         return self.get("api.chunk_size", 4 * 1024 * 1024)
 
@@ -173,6 +183,7 @@ class Config:
 
         Returns:
             bool: True if progress should be shown
+
         """
         return self.get("upload.show_progress", True)
 
@@ -181,6 +192,7 @@ class Config:
 
         Returns:
             bool: True if progress should be shown
+
         """
         return self.get("download.show_progress", True)
 
@@ -189,6 +201,7 @@ class Config:
 
         Returns:
             int: Number of items per page
+
         """
         return self.get("ui.pagination_size", 50)
 
@@ -197,6 +210,7 @@ class Config:
 
         Returns:
             bool: True if human-readable format should be used
+
         """
         return self.get("ui.human_readable", True)
 
@@ -205,6 +219,7 @@ class Config:
 
         Returns:
             Path: Configuration directory path
+
         """
         self.config_dir.mkdir(parents=True, exist_ok=True)
         return self.config_dir
@@ -214,6 +229,7 @@ class Config:
 
         Returns:
             bool: True if reset successfully
+
         """
         self._config_data = self._get_default_config()
         return self.save_config()
@@ -226,6 +242,7 @@ class Config:
 
         Raises:
             ValidationError: If configuration is invalid
+
         """
         # Validate timeout
         timeout = self.get_timeout()

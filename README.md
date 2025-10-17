@@ -147,16 +147,6 @@ jdisk mv <source> <destination>
 
 ---
 
-## Dependencies
-
-```toml
-[dependencies]
-requests
-qrcode
-websocket-client
-```
----
-
 ## Troubleshooting
 
 ### Authentication Issues

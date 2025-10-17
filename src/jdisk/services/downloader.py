@@ -6,7 +6,7 @@ from typing import Callable, Optional
 
 import requests
 
-from ..constants import BASE_URL, FILE_INFO_URL, FILE_DOWNLOAD_URL
+from ..constants import BASE_URL, FILE_DOWNLOAD_URL, FILE_INFO_URL
 from ..utils.errors import DownloadError
 
 logger = logging.getLogger(__name__)
@@ -20,6 +20,7 @@ class FileDownloader:
 
         Args:
             auth_service: Authentication service instance
+
         """
         self.auth = auth_service
         self.session = requests.Session()
@@ -62,6 +63,7 @@ class FileDownloader:
 
         Raises:
             DownloadError: If download fails
+
         """
         if not self.auth.is_authenticated():
             raise DownloadError("Not authenticated")
@@ -113,6 +115,7 @@ class FileDownloader:
 
             data = resp.json()
             from ..models.data import FileInfo
+
             return FileInfo(
                 name=data.get("name", ""),
                 path=data.get("path", []),
@@ -137,7 +140,7 @@ class FileDownloader:
 
             params = {
                 "access_token": self.auth.access_token,
-                "download": "true"
+                "download": "true",
             }
 
             # Allow redirects to get S3 URL
@@ -151,16 +154,15 @@ class FileDownloader:
                 download_url = resp.headers.get("Location")
                 if not download_url:
                     raise DownloadError("No redirect location in response")
-                logger.debug(f"Got S3 redirect URL")
+                logger.debug("Got S3 redirect URL")
                 return download_url
-            else:
-                # If no redirect, try to get download URL from response
-                data = resp.json()
-                download_url = data.get("downloadUrl")
-                if not download_url:
-                    raise DownloadError("No download URL in response")
-                logger.debug(f"Got download URL from response")
-                return download_url
+            # If no redirect, try to get download URL from response
+            data = resp.json()
+            download_url = data.get("downloadUrl")
+            if not download_url:
+                raise DownloadError("No download URL in response")
+            logger.debug("Got download URL from response")
+            return download_url
 
         except Exception as e:
             raise DownloadError(f"Failed to get download URL: {e}")
@@ -179,7 +181,7 @@ class FileDownloader:
 
             downloaded_bytes = 0
 
-            with open(local_path, 'wb') as f:
+            with open(local_path, "wb") as f:
                 for chunk in resp.iter_content(chunk_size=8192):
                     if chunk:
                         f.write(chunk)

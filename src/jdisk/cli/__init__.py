@@ -1,8 +1,8 @@
 """Command line interface for SJTU Netdisk."""
 
-from .main import main as cli_main
 from .commands import CommandHandler
-from .utils import format_output, confirm_action
+from .main import main as cli_main
+from .utils import confirm_action, format_output
 
 __all__ = [
     "cli_main",

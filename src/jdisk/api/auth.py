@@ -1,6 +1,6 @@
 """Authentication API for SJTU Netdisk."""
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 from ..models.responses import AuthResponse
 from ..utils.errors import AuthenticationError
@@ -14,6 +14,7 @@ class AuthAPI:
 
         Args:
             base_client: Base API client
+
         """
         self.client = base_client
 
@@ -25,6 +26,7 @@ class AuthAPI:
 
         Raises:
             AuthenticationError: If authentication fails
+
         """
         raise AuthenticationError("QR code authentication not yet fully implemented in refactored version")
 
@@ -39,6 +41,7 @@ class AuthAPI:
 
         Raises:
             AuthenticationError: If token exchange fails
+
         """
         raise AuthenticationError("Token exchange not yet fully implemented in refactored version")
 
@@ -53,5 +56,6 @@ class AuthAPI:
 
         Raises:
             AuthenticationError: If request fails
+
         """
         raise AuthenticationError("Personal space API not yet fully implemented in refactored version")
