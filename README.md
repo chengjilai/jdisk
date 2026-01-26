@@ -177,21 +177,3 @@ uv tool uninstall jdisk && uv tool install jdisk
 ## License
 
 MIT License
-
----
-
-## Project Status
-
-** Fully Implemented Features:**
--  QR Code Authentication with auto-refresh mechanism
--  Complete file operations (upload, download, list, move, delete)
--  Advanced directory listing with Unix-like options
--  Direct S3 integration for high-speed transfers
-
-For detailed documentation, development guides, and API reference, see the [docs/](docs/) directory.
-
----
-
-**🎉 Enjoy using jdisk!**
-
-For issues, feature requests, or questions, please create an issue on GitHub.
