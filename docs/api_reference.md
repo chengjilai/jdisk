@@ -407,5 +407,3 @@ wss://jaccount.sjtu.edu.cn/ws/{uuid}
   "uuid": "session_uuid"
 }
 ```
-
-This API reference provides the complete specification for all SJTU Netdisk operations used by the jdisk CLI tool.

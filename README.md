@@ -28,19 +28,6 @@ uv tool install jdisk
 ```bash
 git clone https://github.com/chengjilai/jdisk.git
 cd jdisk
-
-# Option 1: Using pixi
-pixi install
-pixi run python src/jdisk/jdisk.py --help
-
-# Option 2: Using hatch for packaging
-hatch build
-pip install dist/jdisk-*.whl
-
-# Option 3: Development installation
-pip install -e .
-
-# Option 4: Using uv tool
 hatch build
 uv tool install -f dist/
 ```
@@ -195,11 +182,11 @@ MIT License
 
 ## Project Status
 
-**✅ Fully Implemented Features:**
-- ✅ QR Code Authentication with auto-refresh mechanism
-- ✅ Complete file operations (upload, download, list, move, delete)
-- ✅ Advanced directory listing with Unix-like options
-- ✅ Direct S3 integration for high-speed transfers
+** Fully Implemented Features:**
+-  QR Code Authentication with auto-refresh mechanism
+-  Complete file operations (upload, download, list, move, delete)
+-  Advanced directory listing with Unix-like options
+-  Direct S3 integration for high-speed transfers
 
 For detailed documentation, development guides, and API reference, see the [docs/](docs/) directory.
 
