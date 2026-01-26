@@ -182,7 +182,7 @@ class FileDownloader:
             downloaded_bytes = 0
 
             with open(local_path, "wb") as f:
-                for chunk in resp.iter_content(chunk_size=8192):
+                for chunk in resp.iter_content(chunk_size=1024*1024*8):
                     if chunk:
                         f.write(chunk)
                         downloaded_bytes += len(chunk)

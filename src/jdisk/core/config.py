@@ -49,7 +49,7 @@ class Config:
                 "base_url": "https://pan.sjtu.edu.cn",
                 "timeout": 30,
                 "max_retries": 3,
-                "chunk_size": 4 * 1024 * 1024,  # 4MB
+                "chunk_size": 8 * 1024 * 1024,  # 4MB
             },
             "upload": {
                 "overwrite": False,
@@ -176,7 +176,7 @@ class Config:
             int: Chunk size in bytes
 
         """
-        return self.get("api.chunk_size", 4 * 1024 * 1024)
+        return self.get("api.chunk_size", 8 * 1024 * 1024)
 
     def show_upload_progress(self) -> bool:
         """Whether to show upload progress.
