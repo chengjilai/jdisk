@@ -19,13 +19,6 @@ jdisk upload <local> [remote] [--overwrite]
 
 Session cached in `~/.config/jdisk/session.json`, auto-refreshed.
 
-## Verify
-
-```sh
-go vet ./...
-go test ./...
-```
-
 ## API schema
 
 Base: `https://pan.sjtu.edu.cn`. Every file call takes `access_token` as a query
