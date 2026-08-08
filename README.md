@@ -1,179 +1,72 @@
 # jdisk
 
-A CLI tool for SJTU Netdisk.
+SJTU Netdisk CLI: `ls`, `download`, `upload`.
 
-**Features:**
-- 🔐 **QR Code Authentication** - Simple and secure login with auto-refresh
-- 📁 **Complete File Operations** - Upload, download, list, move, delete operations
-- 🔄 **Smart Session Management** - Persistent authentication with automatic renewal
-- ⚡ **High-Speed Transfers** - Direct S3 integration with real-time progress tracking
+## Install
 
----
-
-## Quick Start
-
-### Installation
-
-#### Install from PyPI
-```bash
-pip install jdisk
-```
-or
-```bash
-uv tool install jdisk
+```sh
+go install github.com/chengjilai/jdisk@latest
 ```
 
-#### Install from Source
+## Commands
 
-```bash
-git clone https://github.com/chengjilai/jdisk.git
-cd jdisk
-hatch build
-uv tool install -f dist/
+```sh
+jdisk login                  # QR login, scan with My SJTU app
+jdisk ls [path] [-l -h -r]
+jdisk download <remote> [local]
+jdisk upload <local> [remote] [--overwrite]
 ```
 
-### First Time Authentication
+Session cached in `~/.config/jdisk/session.json`, auto-refreshed.
 
-```bash
-jdisk auth
+## Verify
+
+```sh
+go vet ./...
+go test ./...
 ```
 
-**Process:**
-1. QR code displayed in terminal with automatic refresh
-2. Scan with SJTU mobile app
-3. Authentication automatically captured and saved for future use
+## API schema
 
----
+Base: `https://pan.sjtu.edu.cn`. Every file call takes `access_token` as a query
+param (`Authorization` header is not accepted). Sizes appear as number (list) or
+string (info) — parse both.
 
-## Usage Examples
+### Auth chain
 
-### Authentication
-```bash
-jdisk auth                    # QR code authentication
-```
+| Step | Call |
+|---|---|
+| QR uuid | `GET https://my.sjtu.edu.cn/ui/appmyinfo` (follow redirects) → page contains `uuid=…` |
+| QR sig | WS `wss://jaccount.sjtu.edu.cn/jaccount/sub/{uuid}`, send `{"type":"UPDATE_QR_CODE"}` → `{"type":"UPDATE_QR_CODE","payload":{"sig","ts"}}`; wait for `{"type":"LOGIN"}` |
+| QR content | `https://jaccount.sjtu.edu.cn/jaccount/confirmscancode?uuid={uuid}&ts={ts}&sig={sig}` |
+| cookie | `GET https://jaccount.sjtu.edu.cn/jaccount/expresslogin?uuid={uuid}` → sets `JAAuthCookie` |
+| SSO URL | `GET /user/v1/organization/login-org-list` → `organizationList[0].corpId`; `GET /user/v1/sign-in/sso-login-redirect/{corpId}?auto_redirect=false` → `{"url"}` (jaccount authorize) |
+| auth code | follow SSO url with jaccount cookies → redirect to `/login?code={code}` |
+| userToken | `POST /user/v1/sign-in/verify-account-login/{corpId}?type=sso&credential={code}&device_id={d}` → `{userId, userToken, organizations:[{libraryId, orgUser:{nickname}}]}` |
+| accessToken | `POST /user/v1/space/1/personal?user_token={userToken}` → `{libraryId, spaceId, accessToken, expiresIn:1800}` |
 
-### Directory Listing
-```bash
-jdisk ls                      # List root directory (simple format)
-jdisk ls docs/                # List specific directory
-jdisk ls -l                   # Long listing format with details
-jdisk ls -lH                  # Long format with human-readable sizes (B, K, M, G)
-jdisk ls -lt                  # Sort by modification time (newest first)
-jdisk ls -lS                  # Sort by file size (largest first)
-jdisk ls -lr                  # Reverse sort order (oldest first)
-jdisk ls -a                   # Show all files including hidden (starting with .)
-jdisk ls -R                   # Recursive directory listing with tree structure
-jdisk ls -lH -t               # Combine options: long format + human sizes + time sort
-```
+### File API
 
-### File Operations
-```bash
-jdisk upload file.txt         # Upload to root directory with progress bar
-jdisk upload file.txt docs/   # Upload to specific directory
-jdisk download file.txt       # Download from root directory with progress tracking
-jdisk download docs/file.txt  # Download from specific directory
-```
+| Method | Path | Query params | Body | Returns |
+|---|---|---|---|---|
+| GET | `/api/v1/directory/{lib}/{space}[/{path}]` | `access_token` (+ `page`, `page_size`, `order_by`, `order_by_type`) | — | `{path[], contents:[{name,type,size,eTag,crc64,path[],modificationTime}], totalNum}` |
+| GET | `/api/v1/file/{lib}/{space}/{path}` | `access_token`, `info`, `content_disposition=attachment` | — | `{size,eTag,crc64,contentType,cosUrl,cosUrlExpiration}` (no `name`; cosUrl valid 7200s) |
+| GET | `{cosUrl}` | — | — | file bytes |
+| PUT | `/api/v1/file/{lib}/{space}/{path}` | `access_token`, `filesize`, `conflict_resolution_strategy=rename\|overwrite` | `{"size":N}` (opt) | `{confirmKey,domain,path,headers}` (simple upload init) |
+| PUT | `https://{domain}{path}` | — | file bytes; headers from init | 200 |
+| POST | `/api/v1/file/{lib}/{space}/{confirmKey}` | `access_token`, `confirm`, `conflict_resolution_strategy` | `{}` | created file record |
+| POST | same as simple init | `access_token`, `multipart`, `filesize`, `conflict_resolution_strategy` | `{"partNumberRange":[1..N]}` | `{confirmKey,domain,path,uploadId,parts:{N:{headers}}}` (multipart init) |
+| PUT | `https://{domain}{path}?uploadId={id}&partNumber={i}` | — | part bytes; `parts[i].headers` | 200 |
+| DELETE | `/api/v1/file/{lib}/{space}/{path}` | `access_token`, `permanent=0\|1` | — | 204 |
 
-### Directory Management
-```bash
-jdisk mkdir new_folder        # Create directory
-jdisk mkdir -p path/to/nested # Create nested directories (parents created automatically)
-jdisk rm file.txt             # Remove file
-jdisk rm -r docs/             # Remove directory recursively with confirmation
-jdisk mv old.txt new.txt      # Rename file (atomic operation)
-jdisk mv file.txt docs/       # Move file to directory (batch move API)
-```
+Upload: single PUT first; if the server rejects it (object too large for one
+request), it is retried as multipart (chunk = max(5 MB, size/10000), ≤ 10000 parts).
 
-### File operations with paths
-```bash
-jdisk upload ./local/file.txt /remote/path/
-jdisk download /remote/file.txt ./local/
-jdisk ls /folder/subfolder/
-```
+Limits: no per-file API limit; only the space quota applies (this account:
+1024 GiB quota — measured via `GET /api/v1/space/{lib}/{space}/size` and
+`check-available-size?size=` → 204 if it fits). S3 protocol caps, taken from
+the web client constants (not empirically exercised): single PUT ≤ 5 GiB,
+≤ 10000 parts per multipart upload.
 
----
-
-## Command Reference
-
-### `ls` - List Directory Contents
-
-| Option | Description | Example |
-|--------|-------------|---------|
-| `-l` | Long listing format with details | `jdisk ls -l` |
-| `-H` | Human readable sizes (B, K, M, G) | `jdisk ls -lH` |
-| `-t` | Sort by modification time (newest first) | `jdisk ls -lt` |
-| `-S` | Sort by file size (largest first) | `jdisk ls -lS` |
-| `-r` | Reverse sort order | `jdisk ls -lr` |
-| `-a` | Show all files including hidden | `jdisk ls -a` |
-| `-R` | Recursive directory listing | `jdisk ls -R` |
-
-### `upload` - Upload Files
-```bash
-jdisk upload <local_path> [remote_path]
-```
-
-### `download` - Download Files
-```bash
-jdisk download <remote_path> [local_path]
-```
-
-### `mkdir` - Create Directories
-```bash
-jdisk mkdir <path> [-p]
-```
-
-### `rm` - Remove Files/Directories
-```bash
-jdisk rm <path> [-r]
-```
-
-### `mv` - Move/Rename Files
-```bash
-jdisk mv <source> <destination>
-```
-
----
-
-## Troubleshooting
-
-### Authentication Issues
-- **"QR code expired"**: Fixed with auto-refresh (QR codes refresh every 50 seconds)
-- **"Network error"**: Ensure VPN or campus network connection to SJTU services
-- **"Session expired"**: Run `jdisk auth` to re-authenticate (sessions last 30 minutes)
-- **"Invalid signature"**: Restart authentication process and try again
-
-### File Operation Issues
-- **"Upload failed"**: Check file size (max ~200MB) and network connectivity
-- **"Download error"**: Verify file exists and you have download permissions
-- **"Permission denied"**: Re-authenticate with `jdisk auth` to refresh session
-- **"Move failed"**: Ensure source file exists and destination path is valid
-
-### Performance Issues
-- **Slow uploads**: Check internet speed and try uploading smaller files first
-- **Connection timeouts**: Use stable network connection, avoid WiFi if possible
-- **Large directory listings**: Use specific paths instead of root directory
-
-### Common Solutions
-- Always run `jdisk auth` first if you get authentication errors
-- Check network connection to SJTU servers (try `ping pan.sjtu.edu.cn`)
-- Verify file paths are correct and use absolute paths starting with `/`
-- Use `-p` flag with mkdir for creating nested directory structures
-- For large file transfers, ensure stable internet connection
-
-### Advanced Debugging
-```bash
-# Check session status
-ls -la ~/.jdisk/session.json
-
-# Test basic connectivity
-curl -I https://pan.sjtu.edu.cn
-
-# Reinstall if needed
-uv tool uninstall jdisk && uv tool install jdisk
-```
-
----
-
-## License
-
-MIT License
+Errors: HTTP 404 body `{status,code,message}` (e.g. `DirectoryNotFound`,
+`EmptyAccessToken`), some with HTTP 200 + `status != 0`.

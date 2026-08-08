@@ -1,3 +1,6 @@
-__pycache__
-.pixi/
-dist/
+# build artifacts
+/jdisk
+*.exe
+
+# credentials
+session.json
