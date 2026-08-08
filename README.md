@@ -12,7 +12,7 @@ go install github.com/chengjilai/jdisk@latest
 
 ```sh
 jdisk login                  # QR login, scan with My SJTU app
-jdisk ls [path] [-l -h -r]
+jdisk ls [path] [-l]
 jdisk download <remote> [local]
 jdisk upload <local> [remote] [--overwrite]
 ```

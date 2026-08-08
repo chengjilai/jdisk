@@ -15,9 +15,8 @@ Usage:
   jdisk login
         Log in by scanning a QR code with the SJTU mobile app. This is the
         only authentication method.
-  jdisk ls [<remote-path>] [-l] [-h] [-r]
-        List a directory (default: root). -l long format, -h human sizes,
-        -r reverse sort.
+  jdisk ls [<remote-path>] [-l]
+        List a directory (default: root). -l = long format with readable sizes.
   jdisk download <remote-path> [<local-path>]
         Download a file. If local-path is a directory, the file keeps its
         remote name.
@@ -83,10 +82,8 @@ func mustSessionPath() string {
 
 func cmdList(args []string) error {
 	fs := flag.NewFlagSet("ls", flag.ExitOnError)
-	long := fs.Bool("l", false, "long format")
-	human := fs.Bool("h", false, "human-readable sizes")
-	reverse := fs.Bool("r", false, "reverse sort order")
-	fs.Usage = func() { fmt.Fprintln(os.Stderr, "Usage: jdisk ls [<remote-path>] [-l] [-h] [-r]") }
+	long := fs.Bool("l", false, "long format with human-readable sizes")
+	fs.Usage = func() { fmt.Fprintln(os.Stderr, "Usage: jdisk ls [<remote-path>] [-l]") }
 	fs.Parse(args)
 
 	dir := "/"
@@ -115,26 +112,14 @@ func cmdList(args []string) error {
 		}
 		return entries[i].Name < entries[j].Name
 	})
-	if *reverse {
-		for i, j := 0, len(entries)-1; i < j; i, j = i+1, j-1 {
-			entries[i], entries[j] = entries[j], entries[i]
-		}
-	}
 
 	for _, e := range entries {
 		if *long {
-			size := ""
-			switch {
-			case e.Size < 0:
-				size = "-"
-			case *human:
-				size = humanSize(int64(e.Size))
-			default:
-				size = e.Size.String()
-			}
-			kind := "-"
+			kind, size := "-", "-"
 			if e.Type == "dir" {
 				kind = "d"
+			} else {
+				size = humanSize(int64(e.Size))
 			}
 			mod := strings.TrimSuffix(e.ModificationTime, ".000Z")
 			if len(mod) > 16 {
