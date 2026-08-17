@@ -1,3 +1,5 @@
+
+
 # jdisk
 
 SJTU Netdisk CLI: `ls`, `download`, `upload`.
@@ -14,7 +16,7 @@ go install github.com/chengjilai/jdisk@latest
 jdisk login                  # QR login, scan with My SJTU app
 jdisk ls [path] [-l]
 jdisk download <remote> [local]
-jdisk upload <local> [remote] [--overwrite]
+jdisk upload [--overwrite] <local> [remote]
 ```
 
 Session cached in `~/.config/jdisk/session.json`, auto-refreshed.
